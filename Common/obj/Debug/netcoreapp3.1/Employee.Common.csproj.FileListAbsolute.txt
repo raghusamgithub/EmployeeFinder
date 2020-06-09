@@ -1,0 +1,9 @@
+D:\Raghu\Projects\DhavalTasks\Common\bin\Debug\netcoreapp3.1\Employee.Common.deps.json
+D:\Raghu\Projects\DhavalTasks\Common\bin\Debug\netcoreapp3.1\Employee.Common.dll
+D:\Raghu\Projects\DhavalTasks\Common\bin\Debug\netcoreapp3.1\Employee.Common.pdb
+D:\Raghu\Projects\DhavalTasks\Common\obj\Debug\netcoreapp3.1\Employee.Common.csprojAssemblyReference.cache
+D:\Raghu\Projects\DhavalTasks\Common\obj\Debug\netcoreapp3.1\Employee.Common.AssemblyInfoInputs.cache
+D:\Raghu\Projects\DhavalTasks\Common\obj\Debug\netcoreapp3.1\Employee.Common.AssemblyInfo.cs
+D:\Raghu\Projects\DhavalTasks\Common\obj\Debug\netcoreapp3.1\Employee.Common.csproj.CoreCompileInputs.cache
+D:\Raghu\Projects\DhavalTasks\Common\obj\Debug\netcoreapp3.1\Employee.Common.dll
+D:\Raghu\Projects\DhavalTasks\Common\obj\Debug\netcoreapp3.1\Employee.Common.pdb

@@ -1,0 +1,15 @@
+D:\Raghu\Projects\DhavalTasks\Employee.DAL\obj\Debug\netcoreapp3.1\AWE.Employee.DAL.csprojAssemblyReference.cache
+D:\Raghu\Projects\DhavalTasks\Employee.DAL\obj\Debug\netcoreapp3.1\AWE.Employee.DAL.AssemblyInfoInputs.cache
+D:\Raghu\Projects\DhavalTasks\Employee.DAL\obj\Debug\netcoreapp3.1\AWE.Employee.DAL.AssemblyInfo.cs
+D:\Raghu\Projects\DhavalTasks\Employee.DAL\obj\Debug\netcoreapp3.1\AWE.Employee.DAL.csproj.CoreCompileInputs.cache
+D:\Raghu\Projects\DhavalTasks\Employee.DAL\bin\Debug\netcoreapp3.1\AWE.Employee.DAL.deps.json
+D:\Raghu\Projects\DhavalTasks\Employee.DAL\bin\Debug\netcoreapp3.1\AWE.Employee.DAL.runtimeconfig.json
+D:\Raghu\Projects\DhavalTasks\Employee.DAL\bin\Debug\netcoreapp3.1\AWE.Employee.DAL.runtimeconfig.dev.json
+D:\Raghu\Projects\DhavalTasks\Employee.DAL\bin\Debug\netcoreapp3.1\AWE.Employee.DAL.dll
+D:\Raghu\Projects\DhavalTasks\Employee.DAL\bin\Debug\netcoreapp3.1\AWE.Employee.DAL.pdb
+D:\Raghu\Projects\DhavalTasks\Employee.DAL\bin\Debug\netcoreapp3.1\AWE.Employee.Common.dll
+D:\Raghu\Projects\DhavalTasks\Employee.DAL\bin\Debug\netcoreapp3.1\AWE.Employee.Common.pdb
+D:\Raghu\Projects\DhavalTasks\Employee.DAL\obj\Debug\netcoreapp3.1\AWE.Employee.DAL.csproj.CopyComplete
+D:\Raghu\Projects\DhavalTasks\Employee.DAL\obj\Debug\netcoreapp3.1\AWE.Employee.DAL.dll
+D:\Raghu\Projects\DhavalTasks\Employee.DAL\obj\Debug\netcoreapp3.1\AWE.Employee.DAL.pdb
+D:\Raghu\Projects\DhavalTasks\Employee.DAL\obj\Debug\netcoreapp3.1\AWE.Employee.DAL.genruntimeconfig.cache

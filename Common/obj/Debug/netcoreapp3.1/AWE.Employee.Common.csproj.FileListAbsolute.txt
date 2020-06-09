@@ -1,0 +1,9 @@
+D:\Raghu\Projects\DhavalTasks\Common\bin\Debug\netcoreapp3.1\AWE.Employee.Common.deps.json
+D:\Raghu\Projects\DhavalTasks\Common\bin\Debug\netcoreapp3.1\AWE.Employee.Common.dll
+D:\Raghu\Projects\DhavalTasks\Common\bin\Debug\netcoreapp3.1\AWE.Employee.Common.pdb
+D:\Raghu\Projects\DhavalTasks\Common\obj\Debug\netcoreapp3.1\AWE.Employee.Common.AssemblyInfoInputs.cache
+D:\Raghu\Projects\DhavalTasks\Common\obj\Debug\netcoreapp3.1\AWE.Employee.Common.AssemblyInfo.cs
+D:\Raghu\Projects\DhavalTasks\Common\obj\Debug\netcoreapp3.1\AWE.Employee.Common.dll
+D:\Raghu\Projects\DhavalTasks\Common\obj\Debug\netcoreapp3.1\AWE.Employee.Common.pdb
+D:\Raghu\Projects\DhavalTasks\Common\obj\Debug\netcoreapp3.1\AWE.Employee.Common.csproj.CoreCompileInputs.cache
+D:\Raghu\Projects\DhavalTasks\Common\obj\Debug\netcoreapp3.1\AWE.Employee.Common.csprojAssemblyReference.cache

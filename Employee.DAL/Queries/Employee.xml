@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<QUERIES>
+  <SQL ID="DefendantID">
+    <!--
+        SELECT DEFENDANT_ID AS Value FROM T_DEFENDANT WHERE CASE_PARTICIPANT_ID = {0}
+    -->
+  </SQL>
+  
+  <SQL ID="GetEmployeeSearch">
+  <!--
+      SELECT * From 
+      
+  -->
+  </SQL>  
+  
+</QUERIES>

@@ -1,0 +1,14 @@
+D:\Raghu\Projects\DhavalTasks\Employee.Business\bin\Debug\netcoreapp3.1\AWE.Employee.Business.deps.json
+D:\Raghu\Projects\DhavalTasks\Employee.Business\bin\Debug\netcoreapp3.1\AWE.Employee.Business.dll
+D:\Raghu\Projects\DhavalTasks\Employee.Business\bin\Debug\netcoreapp3.1\AWE.Employee.Business.pdb
+D:\Raghu\Projects\DhavalTasks\Employee.Business\bin\Debug\netcoreapp3.1\AWE.Employee.DAL.dll
+D:\Raghu\Projects\DhavalTasks\Employee.Business\bin\Debug\netcoreapp3.1\AWE.Employee.DAL.pdb
+D:\Raghu\Projects\DhavalTasks\Employee.Business\obj\Debug\netcoreapp3.1\AWE.Employee.Business.csprojAssemblyReference.cache
+D:\Raghu\Projects\DhavalTasks\Employee.Business\obj\Debug\netcoreapp3.1\AWE.Employee.Business.AssemblyInfoInputs.cache
+D:\Raghu\Projects\DhavalTasks\Employee.Business\obj\Debug\netcoreapp3.1\AWE.Employee.Business.AssemblyInfo.cs
+D:\Raghu\Projects\DhavalTasks\Employee.Business\obj\Debug\netcoreapp3.1\AWE.Employee.Business.csproj.CoreCompileInputs.cache
+D:\Raghu\Projects\DhavalTasks\Employee.Business\obj\Debug\netcoreapp3.1\AWE.Employee.Business.csproj.CopyComplete
+D:\Raghu\Projects\DhavalTasks\Employee.Business\obj\Debug\netcoreapp3.1\AWE.Employee.Business.dll
+D:\Raghu\Projects\DhavalTasks\Employee.Business\obj\Debug\netcoreapp3.1\AWE.Employee.Business.pdb
+D:\Raghu\Projects\DhavalTasks\Employee.Business\bin\Debug\netcoreapp3.1\AWE.Employee.Common.dll
+D:\Raghu\Projects\DhavalTasks\Employee.Business\bin\Debug\netcoreapp3.1\AWE.Employee.Common.pdb
