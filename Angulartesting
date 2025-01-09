@@ -1,0 +1,38 @@
+Here's an updated version of the qTest:
+
+Test Case: Enrollment Age Verification
+_Test Case ID:_
+[Insert ID]
+
+_Description:_
+Verify that users under 13 years of age are blocked from enrolling in Online Banking.
+
+_Preconditions:_
+1. User is attempting to enroll in Online Banking.
+2. BP2L BankPro call is successfully retrieving user's date of birth.
+
+_Steps:_
+_Scenario 1: User is under 13 years of age_
+
+1. Simulate a BP2L BankPro call response with a date of birth that corresponds to an age under 13 years.
+2. Attempt to enroll in Online Banking.
+3. Verify that the Enroll/VerifyCustomer returns an "Under 13" error.
+4. Verify that the user is navigated to a new error page.
+
+_Scenario 2: User is 13 years of age or older_
+
+1. Simulate a BP2L BankPro call response with a date of birth that corresponds to an age of 13 years or older.
+2. Attempt to enroll in Online Banking.
+3. Verify that no "Under 13" error is returned.
+4. Verify that existing customer verification is performed as normal.
+
+_Expected Results:_
+- Users under 13 years of age are blocked from enrolling in Online Banking and are navigated to an error page.
+- Users 13 years of age or older are allowed to enroll in Online Banking and undergo normal customer verification.
+
+_Test Data:_
+- Simulated BP2L BankPro call responses with different dates of birth.
+
+_Notes:_
+- This test case assumes that the BP2L BankPro call is working correctly and retrieving the user's date of birth accurately.
+- This test case only verifies the age verification aspect of the enrollment process.
