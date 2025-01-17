@@ -1,1 +1,106 @@
 AngularTesting
+var enrollmentProspectResponse = EnrollmentHelper.CreateEnrollmentProspect(query, EnrollmentRepository, CmsRepository);
+
+// Logging the response status
+Logger.Debug($"EnrollmentProspectResponse.IsSuccessful: {enrollmentProspectResponse?.IsSuccessful}");
+
+if (enrollmentProspectResponse == null)
+{
+    Logger.Error("EnrollmentProspectResponse is null. Unable to proceed with enrollment prospect creation.");
+    throw new Exception("EnrollmentProspectResponse is null.");
+}
+
+if (enrollmentProspectResponse.IsSuccessful && enrollmentProspectResponse.ResultItems != null && enrollmentProspectResponse.ResultItems.Count > 0)
+{
+    var enrollmentIdentificationResponse = EnrollmentHelper.SetEnrollmentIdentification(query, EnrollmentRepository, UserDetailsRepository);
+
+    if (enrollmentIdentificationResponse == null || enrollmentIdentificationResponse.ResultItems == null || enrollmentIdentificationResponse.ResultItems.Count == 0)
+    {
+        Logger.Error("EnrollmentIdentificationResponse is null or contains no ResultItems.");
+        throw new Exception("EnrollmentIdentificationResponse is invalid.");
+    }
+
+    if (IsEnrollmentPhoneEmailVerificationEnabled)
+    {
+        try
+        {
+            // Fetching RCIF ID and Customer Name
+            var rcifId = enrollmentIdentificationResponse.ResultItems[0]?.RcifIdForSsn;
+            var userName = enrollmentIdentificationResponse.ResultItems[0]?.CustomerName;
+
+            if (string.IsNullOrEmpty(rcifId) || string.IsNullOrEmpty(userName))
+            {
+                Logger.Error("RCIF ID or Customer Name is null or empty.");
+                throw new Exception("Invalid RCIF ID or Customer Name.");
+            }
+
+            Logger.Debug("Calling CRR after verifying the customer.");
+
+            // Fetching CRR Info
+            var results = CRRInfoRepository.GetCRRInfo(new BP2LRequestPar
+            {
+                BpmsppCIF = rcifId,
+                UserName = "New User"
+            });
+
+            if (results == null)
+            {
+                Logger.Error($"EnrollmentProspectIdentificationQueryHandler - Execute -> Results are null or empty for RCIF ID: {rcifId}");
+                return new EnrollmentProspectIdentificationQueryResult("990100006")
+                {
+                    HostErrorResponses = null,
+                    HostResponses = null
+                };
+            }
+
+            // Under 13 age validation
+            if (results.BPMSJSPOutput?.bpmspresponse != null && 
+                !string.IsNullOrEmpty(results.BPMSJSPOutput.bpmspresponse.bpmsp_birth_dte))
+            {
+                if (DateTime.TryParseExact(results.BPMSJSPOutput.bpmspresponse.bpmsp_birth_dte, "yyyyMMdd",
+                                           CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime birthDate))
+                {
+                    int age = CalculateAge(birthDate);
+
+                    if (age < 13)
+                    {
+                        Logger.Error("EnrollmentProspectIdentificationQueryHandler - Execute -> Users must be 13 years old or older to enroll in digital services.");
+                        return new EnrollmentProspectIdentificationQueryResult("990199006")
+                        {
+                            HostErrorResponses = null,
+                            HostResponses = null
+                        };
+                    }
+                }
+                else
+                {
+                    Logger.Error($"EnrollmentProspectIdentificationQueryHandler - Execute -> Unable to parse DOB for RCIF ID: {rcifId}");
+                    return new EnrollmentProspectIdentificationQueryResult("990100006")
+                    {
+                        HostErrorResponses = null,
+                        HostResponses = null
+                    };
+                }
+            }
+            else
+            {
+                Logger.Error($"EnrollmentProspectIdentificationQueryHandler - Execute -> DOB is null or empty for RCIF ID: {rcifId}");
+                return new EnrollmentProspectIdentificationQueryResult("990100006")
+                {
+                    HostErrorResponses = null,
+                    HostResponses = null
+                };
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.Error($"EnrollmentProspectIdentificationQueryHandler - Execute -> Exception occurred: {ex.Message}", ex);
+            throw;
+        }
+    }
+}
+else
+{
+    Logger.Error("EnrollmentProspectResponse is either unsuccessful or contains no ResultItems.");
+    throw new Exception("EnrollmentProspectResponse is invalid.");
+}
