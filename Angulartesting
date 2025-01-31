@@ -1,1 +1,221 @@
 AngularTesting
+
+Here’s your demo preparation in a structured point format:
+
+Demo on Under 13 / Phone & Email Validation
+
+1. Introduction
+
+Hi Everyone, today I will be giving a demo on the Under 13 / Phone & Email Validation story.
+
+In the last sprint, we already provided a demo for the Under 13 functionality.
+
+Today, I will be presenting the full flow, including phone and email validation.
+
+
+
+2. Feature Switch Flags
+
+We have introduced separate feature switch flags for Under 13 and Phone/Email Validation.
+
+I will demonstrate the functionality with the flags turned on and off for both features.
+
+
+
+3. Under 13 Validation
+
+I will demonstrate the flow with a user whose age is below 13.
+
+Here, I will enable the Under 13 feature flag.
+
+After entering all details and clicking Next, the system navigates to a newly created error page.
+
+In the backend, we validate the user’s age, and if the age is under 13, we return a new error code specific to this feature.
+
+
+
+4. Phone & Email Validation
+
+First, we validate the Under 13 condition.
+
+If the user's age is above 13, the system then validates email and phone (only if the Phone/Email feature flag is enabled).
+
+If the flag is disabled, the system skips phone/email validation and moves to the next step.
+
+
+
+5. Feature Flag Behavior
+
+If the Under 13 feature switch flag is disabled, the system directly validates phone/email if the Phone/Email flag is enabled.
+
+Otherwise, it follows the normal flow.
+
+If both feature flags are disabled, it does not affect the normal flow, and the system works as usual.
+
+
+
+6. Error Handling
+
+If the user enters an incorrect email or phone number, the system validates both fields.
+
+If either phone or email is incorrect, an "Unable to proceed" error message immediately appears on the screen.
+
+
+
+7. Null Checks & Logging
+
+If the BankPro call returns null results, we log the issue and display a generic error message on the page.
+
+If the Date of Birth (DOB) is null, empty, or in an incorrect format, a generic error message is displayed.
+
+If the phone or email is null or empty, a generic error message is also shown.
+
+
+
+
+This structure ensures a clear and organized demo. Let me know if you need any refinements! 
+Here are the demo points in a concise and organized format:
+
+*Demo Overview*
+
+- Demo on Under 13 / Phone & Email Validation story
+- Building on previous Under 13 functionality demo
+
+*Key Features*
+
+1. Separate feature switch flags for Under 13 and Phone/Email Validation
+2. Phone and email validation with flags enabled/disabled
+3. User flow with age below 13
+4. Error handling for Under 13, phone, and email validation
+
+*Demo Steps*
+
+1. Enable Under 13 feature flag and demonstrate error page
+2. Validate user age and return error code for Under 13
+3. Validate phone and email if Phone/Email feature flag is enabled
+4. Handle incorrect phone or email input
+5. Demonstrate normal flow with both feature flags disabled
+
+*Edge Cases*
+
+1. Null checks for all fields
+2. Handling null results from BankPro call
+3. Error handling for invalid DOB, phone, or email format
+
+*Key Takeaways*
+
+- Separate feature flags for Under 13 and Phone/Email Validation
+- Robust error handling for various scenarios
+- Smooth user experience with normal flow unaffected by feature flags
+[30/01, 10:04 pm] Meta AI: Here is a rewritten version of the demo points:
+
+*Demo Overview*
+
+Today, I will demonstrate the Under 13 / Phone & Email Validation story, building on the previous Under 13 functionality demo.
+
+*Key Features*
+
+1. Separate feature flags for Under 13 and Phone/Email Validation
+2. Phone and email validation with real-time error handling
+3. Customizable error messages for various scenarios
+
+*Demo Flow*
+
+1. User registration with age below 13
+2. Enabling/disabling Under 13 feature flag
+3. Phone and email validation with feature flag enabled
+4. Handling incorrect phone or email input
+5. Normal flow with both feature flags disabled
+
+*Error Handling*
+
+1. Under 13 error handling with custom error code
+2. Phone and email validation errors with real-time feedback
+3. Handling null or invalid input for DOB, phone, and email
+
+*Takeaways*
+
+1. Flexible feature flags for customizable validation
+2. Robust error handling for a seamless user experience
+3. Easy integration with existing registration flow
+[31/01, 4:07 pm] RaghuNRaj: Here’s a concise breakdown of your demo preparation in points:
+
+---
+
+### **Introduction**
+1. **Greeting**:  
+   - "Hi everyone, today I’ll be giving a demo on the Under 13 / Phone & Email Validation story."
+   
+2. **Context**:  
+   - In the last sprint, we demoed the Under 13 functionality.  
+   - Today, I’ll present the full flow, including **Phone and Email Validation**.
+
+---
+
+### **Key Features**
+3. **Feature Switch Flags**:  
+   - Separate flags for:  
+     - Under 13 functionality.  
+     - Phone/Email Validation.  
+   - Demo will show functionality with flags **ON** and **OFF**.
+
+---
+
+### **Under 13 Flow**
+4. **Scenario**:  
+   - User age is **below 13**.  
+   - Under 13 feature flag is **enabled**.  
+
+5. **Steps**:  
+   - Enter user details and click **Next**.  
+   - System navigates to a **new error page**.  
+   - Backend validates age:  
+     - If age is under 13, returns a **new error code** specific to Under 13.  
+
+---
+
+### **Above 13 Flow**
+6. **Scenario**:  
+   - User age is **above 13**.  
+
+7. **Steps**:  
+   - System proceeds to validate **email and phone** (if Phone/Email feature flag is enabled).  
+   - If Phone/Email flag is **disabled**, system skips validation and moves to the next step.  
+
+---
+
+### **Feature Flag Scenarios**
+8. **Under 13 Flag Disabled**:  
+   - System directly validates phone/email (if Phone/Email flag is enabled).  
+   - If Phone/Email flag is **disabled**, system follows the **normal flow**.  
+
+9. **Both Flags Disabled**:  
+   - No impact on normal flow; system works as usual.  
+
+---
+
+### **Error Handling**
+10. **Incorrect Email/Phone**:  
+    - System validates both fields.  
+    - If either is incorrect, displays error: **"Unable to proceed"**.  
+
+11. **Null or Empty Fields**:  
+    - **DOB**: If null, empty, or in incorrect format, displays a **generic error message**.  
+    - **Phone/Email**: If null or empty, displays a **generic error message**.  
+
+12. **BankPro Call Returns Null**:  
+    - Logs the issue and displays a **generic error message** on the page.  
+
+---
+
+### **Summary**
+13. **Recap**:  
+    - Demonstrated full flow with feature flags ON/OFF.  
+    - Highlighted error handling for Under 13, phone/email validation, and null/empty fields.  
+
+14. **Q&A**:  
+    - Open the floor for questions.  
+
+---
+
+This structure ensures clarity and covers all key aspects of your demo. Let me know if you need further adjustments!
