@@ -1,1 +1,24 @@
 AngularTesting
+Here are the test scenarios in a table format:  
+
+| **Test Case ID** | **Scenario** | **Preconditions** | **Input** | **Expected Output** |  
+|-----------------|-------------|-------------------|----------|--------------------|  
+| TC01 | Age < 13 and **Under13 flag ON** | User's age is 12 or below, **Under13 flag = ON** | Attempt to proceed | Show **new error screen** |  
+| TC02 | Age < 13 and **Under13 flag OFF** | User's age is 12 or below, **Under13 flag = OFF** | Attempt to proceed | Allow further validation |  
+| TC03 | Age ≥ 13 and **PhoneEmail flag OFF** | User's age is 13 or above, **PhoneEmail flag = OFF** | Enter any email/phone | Allow further processing without validation |  
+| TC04 | Age ≥ 13, **PhoneEmail flag ON**, invalid email | User's age is 13 or above, **PhoneEmail flag = ON** | Enter incorrect email format (e.g., abc@xyz) | Show **email validation error** |  
+| TC05 | Age ≥ 13, **PhoneEmail flag ON**, invalid phone | User's age is 13 or above, **PhoneEmail flag = ON** | Enter incorrect phone format (e.g., 12345) | Show **phone validation error** |  
+| TC06 | Age ≥ 13, **PhoneEmail flag ON**, valid email | User's age is 13 or above, **PhoneEmail flag = ON** | Enter correct email (e.g., abc@xyz.com) | Allow further processing |  
+| TC07 | Age ≥ 13, **PhoneEmail flag ON**, valid phone | User's age is 13 or above, **PhoneEmail flag = ON** | Enter correct phone (e.g., 9876543210) | Allow further processing |  
+
+Let me know if any modifications are needed!
+
+If both **Under13 flag** and **PhoneEmail flag** are **OFF**, then no validation should be performed, and the user should proceed to the next step without any error.  
+
+Here’s an updated test scenario for this case:  
+
+| **Test Case ID** | **Scenario** | **Preconditions** | **Input** | **Expected Output** |  
+|-----------------|-------------|-------------------|----------|--------------------|  
+| TC08 | Both **Under13 flag OFF** and **PhoneEmail flag OFF** | User's age can be any value | Enter any email/phone (or no input) | Proceed to the next step without validation |  
+
+This ensures that validation is only enforced when the respective flags are ON. Let me know if you need any changes!
