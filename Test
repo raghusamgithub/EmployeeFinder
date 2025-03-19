@@ -1,25 +1,2 @@
 Angular
 
-I have reviewed the codebase for the OJAW call and observed that the App Service call code has not been removed. The flag is enabled, and the 'Get Credit Card Account' is retrieving data solely through the EAPI call. As per Vishnu’s input, the BP2L call changes need to be handled by the DPAPI team.
-
-I need confirmation on the following points:
-
-Should we remove the App Service call code in the current sprint?
-The OJBS and OBJU call code has already been removed from the App Service, and these calls are now routed through EAPI only.
-Once the DPAPI team integrates the BP2L call, can we proceed with implementing the necessary changes in our EAPI call accordingly?
-Do we need to implement the BP2L call from the App Service as well?
-Please confirm the above points.
-
-Here are the points:
-
-Confirmation Required:
-
-1. Should we remove the App Service call code in the current sprint?
-2. Once the DPAPI team integrates the BP2L call, can we proceed with implementing the necessary changes in our EAPI call accordingly?
-3. Do we need to implement the BP2L call from the App Service as well?
-
-Background:
-
-- The App Service call code has not been removed, despite the flag being enabled and the 'Get Credit Card Account' retrieving data solely through the EAPI call.
-- The OJBS and OBJU call code has already been removed from the App Service and is now routed through EAPI only.
-- The BP2L call changes need to be handled by the DPAPI team, as per Vishnu's input.
