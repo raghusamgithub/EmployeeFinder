@@ -1,24 +1,3 @@
 Angular
-Acceptance Criteria for Popups on ACH/Wire Screen
-First Popup (One-Time Display)
 
-When the user lands on the ACH or Wire screen for the first time, the first popup should appear immediately.
-
-This popup should only be shown once per login session.
-
-If the user navigates to another screen and returns, the first popup should not reappear.
-
-The user can close the popup by either:
-
-Clicking the "X" (close icon).
-
-Clicking the "Continue" button inside the popup.
-
-Second Popup (Always Displayed on Continue)
-
-The second popup should always appear when the user clicks the "Continue" button on the landing page.
-
-Before displaying this popup, all required fields on the page must be validated.
-
-This popup should appear before navigating to the next screen (e.g., the confirmation page).
 
