@@ -1,1 +1,93 @@
 Angular
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Stop and Verify</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      background-color: #ffffff;
+      max-width: 500px;
+      margin: 50px auto;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      background-color: #74a42e;
+      color: white;
+      padding: 20px;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .content {
+      padding: 20px;
+      text-align: left;
+    }
+    .content h3 {
+      margin-top: 0;
+      color: #333;
+    }
+    .content p {
+      margin: 10px 0;
+    }
+    .content ul {
+      padding-left: 20px;
+    }
+    .content ul li {
+      margin-bottom: 10px;
+    }
+    .button {
+      display: block;
+      background-color: #d9534f;
+      color: white;
+      text-align: center;
+      padding: 10px;
+      text-decoration: none;
+      margin: 20px auto;
+      width: 100px;
+      border-radius: 5px;
+    }
+    .footer {
+      background-color: #4e682c;
+      color: white;
+      text-align: center;
+      padding: 10px;
+      font-size: 14px;
+    }
+    .footer a {
+      color: #add8e6;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      Stop and verify
+    </div>
+    <div class="content">
+      <h3>Beware of scammers</h3>
+      <p><strong>Fraud is rising. Be careful before you send money.</strong></p>
+      <ul>
+        <li>Verify urgent payment requests by calling a known number. Don’t rely on email or text.</li>
+        <li>Never share security codes or account information with anyone for any reason.</li>
+        <li>Confirm any changes to bank details with the recipient before sending money.</li>
+      </ul>
+      <a href="#" class="button">Continue</a>
+    </div>
+    <div class="footer">
+      Learn more about how to <a href="#">protect your business against fraud</a>.
+    </div>
+  </div>
+</body>
+</html>
