@@ -1,14 +1,2 @@
 Angular
-We’re still facing access issues that prevent us from running the OLB application locally. As a workaround, I continued development and tested the changes directly in the Q5 environment, though this approach requires significantly more effort.
 
-Here’s what I’ve completed:
-
-Developed the fraud prevention pop-up.
-
-Ensured it displays only once per session.
-
-Fetched and integrated CMS content into the pop-up.
-
-Added a feature flag to control its visibility.
-
-The only pending task is adjusting the design—the pop-up is currently appearing inside a lightbox and needs to be repositioned.
