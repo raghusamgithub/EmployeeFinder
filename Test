@@ -1,2 +1,82 @@
 Angular
 
+Fraud Prevention Popup Behavior
+
+When a user logs into OLB (Online Banking) for the first time and clicks on either the ACH or Wire link in the ACH and Wire Transfer landing page, a fraud prevention popup should be displayed once per session.
+
+If the user navigates to another page and returns to the ACH or Wire page within the same session, the popup should not appear again.
+
+If the user logs out and logs in again, then navigates to the ACH or Wire page, the popup should be displayed again.
+
+If the fraud prevention flag is turned OFF, the popup should not be displayed at all.
+
+If the flag is ON, the popup should be displayed as per the session rules above.
+
+Test Case Title: Fraud Prevention Popup Display Behavior
+
+Module: ACH/Wire Transfer
+Preconditions:
+
+User has valid OLB credentials
+
+Fraud prevention popup flag is configurable (ON/OFF)
+
+Test Cases
+1. Display popup on first ACH/Wire access in a session
+
+Steps:
+
+Login to OLB
+
+Navigate to ACH and Wire Transfer landing page
+
+Click on ACH or Wire link
+
+Expected Result:
+Fraud prevention popup is displayed once.
+
+2. Do not show popup again within same session
+
+Steps:
+
+After Test Case 1, navigate to another page
+
+Return to ACH or Wire page
+
+Expected Result:
+Fraud popup is not displayed again.
+
+3. Show popup after logout and re-login
+
+Steps:
+
+Logout from OLB
+
+Login again
+
+Go to ACH or Wire page
+
+Expected Result:
+Fraud popup is displayed again.
+
+4. Popup should not appear if flag is OFF
+
+Steps:
+
+Ensure fraud prevention flag is turned OFF
+
+Login and go to ACH/Wire page
+
+Expected Result:
+Fraud popup is not displayed.
+
+5. Popup appears as per session rules when flag is ON
+
+Steps:
+
+Turn fraud prevention flag ON
+
+Login and verify popup behavior as per Test Cases 1-3
+
+Expected Result:
+Popup is displayed once per session as expected.
