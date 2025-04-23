@@ -1,2 +1,26 @@
 Angular
 
+**Today's Update:**
+
+- Completed testing for all the test cases shared by Neha during the demo call — everything is working as expected.
+- Performed testing in the Q5 environment.
+- Raised a PR to the feature branch for the *Fraud First Pop-up* story that we worked on in the last sprint.
+- Requested review and approval for the PR.
+
+---
+
+Let me know if you'd like to add anything more or need this formatted for an email or daily stand-up!
+
+Great, Raghu! Here's a refined version of your update for the OBA-22335 story:
+
+---
+
+**Story: OBA-22335 – Report/Stolen Card – Refresh Landing Page**
+
+- Completed the coding work for the landing page refresh functionality.
+- Deployed changes to the Q5 environment for testing.
+- Verified that the page reloads correctly upon clicking the reload link.
+- Raised a PR to the feature branch.
+- Assigned the code review to Arpith and Staish.
+
+
