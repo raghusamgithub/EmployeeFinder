@@ -1,4 +1,7 @@
 Angular
+Popup visibility depends on validation. On clicking the Continue button, all page validation checks should be performed first. Only after successful validation should the popup become visible.
+Checkbox not selectable after error. When the popup displays the error message “Please select the checkbox before continuing to the next confirmation page,” clicking the checkbox fails to select it. The checkbox remains unchecked and the click is not registered.
+Popup reopen resets state. After the popup is opened and the checkbox is selected, if the popup is closed and then reopened, the checkbox should be disabled and any previously displayed error messages should be cleared.
 
 
 
