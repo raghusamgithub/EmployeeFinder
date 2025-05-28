@@ -1,2 +1,58 @@
-Angular
+Angular raghusamgithub
 
+
+
+
+Here’s a concise version of your description for both pop-ups:
+
+---
+
+### **First Pop-Up: Fraud Prevention**
+
+* **When Shown:**
+
+  * First time a user clicks ACH or Wire after logging in.
+  * Only once per session.
+  * Shown again after logout and re-login.
+* **When Not Shown:**
+
+  * If already shown in current session.
+  * If fraud prevention flag is OFF.
+
+---
+
+### **Second Pop-Up: Review and Confirm**
+
+1. **Continue Without Checking the Box:**
+
+   * **Action:** Click “Continue” without checking the agreement box.
+   * **Result:** Show error message. Block navigation.
+   * **Log:** “User tried to continue without checking the box.”
+
+2. **Cancel:**
+
+   * **Action:** Click “Cancel.”
+   * **Result:** Close pop-up. Return to previous screen.
+   * **Log:** “User canceled the action.”
+
+3. **Close (X):**
+
+   * **Action:** Click the "X" button.
+   * **Result:** Close pop-up. Return to previous screen.
+   * **Log:** “User closed the pop-up.”
+
+4. **Continue After Checking the Box:**
+
+   * **Action:** Check the box and click “Continue.”
+   * **Result:** Close pop-up. Proceed to next step.
+   * **Log:** “User continued after checking the box.”
+
+5. **Click Fraud Info Link:**
+
+   * **Action:** Click “Protect your business against fraud” link.
+   * **Result:** Open new tab with fraud info. Pop-up remains open.
+   * **Log:** “User clicked the 'learn more about fraud' link.”
+
+---
+
+Let me know if you want this formatted for documentation or UI spec.
