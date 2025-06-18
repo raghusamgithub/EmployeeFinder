@@ -1,1 +1,28 @@
-Angula
+Angul
+This is a crucial clarification! It directly impacts the scope and complexity of the backend integration.
+Here's a breakdown of the two scenarios and the implications:
+Scenario 1: DPAI team validates dates and passes a flag/notification to UI.
+ * Clarification Needed: We need explicit confirmation from the DPAI team on:
+   * Exact API Contract: What specific field or flag will DPAI return in their response to indicate a recent card order (within 24 hours)? What are its possible values?
+   * Validation Logic: What is the DPAI's precise logic for "validating the dates for all cards"? Do they consider all card types (debit, NOW), all order types (lost/stolen, replacement, add new), and how do they determine the 24-hour window (e.g., UTC, local time)?
+   * Error Handling: How will DPAI's API respond if there are issues retrieving card data?
+   * Performance: Will this DPAI call be performant enough to be made on every mailing address page load?
+ * Implications for Our Team (OLB):
+   * Reduced Scope: Our team's primary responsibility would be to consume this flag/notification from DPAI. We would not need to perform the getCards EAPI call directly or implement the date validation logic.
+   * Simpler Backend: The backend service for the address change page would primarily act as a passthrough or light orchestrator, calling DPAI and then passing their flag to the UI.
+   * Dependency on DPAI: Our team is heavily dependent on the DPAI team's delivery and accuracy of this flag. Any delays or issues on their side directly impact our feature.
+Scenario 2: Our team calls the getCards EAPI and then validates.
+ * Clarification Needed: We need definitive confirmation that our team has direct access and is permitted to call the getCards EAPI from the OLB context. We also need the full documentation for getCards EAPI, specifically regarding how to retrieve the card requested date for all relevant card types and order types.
+ * Implications for Our Team (OLB):
+   * Increased Scope: Our team would be responsible for:
+     * Making the getCards EAPI call.
+     * Processing the response to identify all relevant debit/NOW cards.
+     * Implementing the logic to extract the card requested date for each card.
+     * Implementing the logic to compare these dates against the current time to determine if any fall within the 24-hour window.
+     * Handling errors from the getCards EAPI directly.
+   * More Complex Backend: The backend service for the address change page would have more business logic implemented within it.
+   * Reduced Dependency on DPAI (for this specific logic): We would have more control over the validation logic, but we still depend on the getCards EAPI being available and reliable.
+Recommendation:
+The preferred approach, if feasible, is Scenario 1. Having the DPAI team handle the validation and provide a simple flag significantly reduces complexity and development effort for the OLB team, aligning with a more service-oriented architecture where DPAI is the system of record for card data and related business logic.
+However, if DPAI cannot or will not provide this consolidated flag, then Scenario 2 becomes necessary. In that case, the story and task estimates for the OLB team's backend work would need to be adjusted upwards to reflect the additional logic and integration responsibilities.
+Action Item: The immediate next step is to initiate a conversation with the DPAI team to get a clear answer on their capabilities and willingness to provide this specific validation and flag.
