@@ -1,1 +1,26 @@
-Angular 
+Here's a professionally rewritten version of your update:
+
+---
+
+### **Update on Transfer Limits Integration in EAPI**
+
+I have completed the coding changes related to the integration of transfer limits in the EAPI module:
+
+1. **Upgraded to DPAPI V3**: The system is now consuming version V3 of the DPAPI, replacing the earlier V2 integration.
+2. **Change in Data Source**:
+
+   * **V2**: All transfer limit data was provided directly by the Host.
+   * **V3**: Only static fields such as maximum/minimum transfer limits (both "From" and "To") are retrieved from the database based on the account type.
+3. **Cache-Based Lookup**: In V3, all limit details are fetched from the cache depending on the account type and subtype, rather than from the Host.
+
+The integration and testing of most account types have been completed successfully in the Q5 environment.
+
+However, a few account types are pending due to test data issues on the Host side. Raj has raised a ticket for these issues, and the Host team is currently working on resolving them.
+
+Once the required data is available, I will proceed with the remaining development and testing for those specific account types.
+
+At this stage, the V3 integration in EAPI is **partially blocked** due to the above dependency.
+
+---
+
+Let me know if you'd like this formatted as an email or status update for Jira or Confluence.
