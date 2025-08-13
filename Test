@@ -1,1 +1,70 @@
 Angular
+## Status Update: Transfer Limits v3 (for Scrum Master & Client)
+
+- Completed code changes for Transfer Limits v3.  
+- Last sprint: Tested Checking, Savings, and Visa accounts — passed.  
+- Current sprint: Implemented Mortgage Loan and Installment Loan changes; tests passed through Monday.  
+- Blocker yesterday: Installment Loan testing failed due to host issue while DPAPI was running release tests on a different branch.  
+- Resolution: Requested DPAPI support on Tuesday; today they reverted to the old branch and deployed to QA — Installment Loan testing passed.  
+- New issue: Checking/Savings display balance shows 0 due to a host-side problem; DPAPI is working on a fix.  
+- Impact: Today’s testing for Checking/Savings is affected by the host issue (these worked last sprint).  
+- Coverage: ~80% of code changes verified across multiple account types.  
+- Next steps: Recommend full UI-based regression across all account types; will address any account-specific issues discovered.
+
+
+Got it — you want to update the earlier status point to reflect the correct detail that the DPAPI team **reverted to the old branch** before deploying to QA.  
+
+Here’s the revised status update with that correction:  
+
+***
+
+**# Status Update: Transferimits v3  
+
+- Completed all code changes for Transfer Limits v3.  
+- In the last sprint, tested with selected account types: Checking, Savings, and Visa — tests passed.  
+- In the current sprint, implemented changes for Mortgage Loan and Installment Loan; user testing was successful through Monday.  
+- Yesterday, Installment Loan testing was blocked due to a host issue; the DPAPI team confirmed they were running release testing on a different branch.  
+- Requested DPAPI support on Tuesday; today they reverted to the old branch, deployed to QA, and Installment Loan testing then passed.  
+- Identified a separate issue for Checking and Savings accounts: display balance returning zero due to a host-side problem; DPAPI team is actively working on a fix.  
+- Although these accounts worked in the last sprint, today’s testing for Checking and Savings is impacted by the host issue.  
+- Approximately 80% of code changes are verified and working across multiple account types; recommend comprehensive UI-based testing across all account types, and we will address any account-specific issues as they arise.  
+
+***
+
+Do you want me to also rephrase this update into a **crisper, bullet-point format** specifically for a Scrum Master and client email?
+
+
+Here’s a cleaner, more professional rewrite of your update in bullet points so it’s clear for your client and Scrum Master:
+
+---
+
+**Update for Transfer Limits Story**
+
+1. Completed code changes for **Transfer Limits V3**.
+2. **Last sprint** – Tested successfully with a few account types: *Checking Account*, *Savings Account*, and *Visa Account*.
+3. **This sprint** – Added code changes for *Mortgage Loan* and *Installment Loan* account types. Testing was successful until Monday.
+4. **Yesterday** – Faced an issue testing *Installment Loan* accounts due to a **host-side problem**. Discussed with the DPAPI team, who confirmed they were doing release testing and had deployed a different branch.
+5. I had requested them on Tuesday to deploy the correct branch. They completed it today, and I successfully tested *Installment Loan* accounts – **working fine now**.
+6. Found another issue for *Checking* and *Savings* account types where the display balance was coming as zero (host issue). DPAPI team confirmed they are working on fixing it.
+7. Even though these accounts worked last sprint, we are currently blocked from testing them due to the host issue.
+8. **Current status** – Around **80% of my code changes are tested and working** with multiple account types.
+9. **Recommendation** – In future, we should test thoroughly with all account types from the UI. If any account-specific issues arise, I will make the necessary code changes accordingly.
+
+---
+
+If you want, I can also make a **shorter, crisp status version** for quick daily standup updates. That would make it even easier for your Scrum Master and client to read in a few seconds.
+Here’s the **short and crisp version** for a daily standup or quick client update:
+
+---
+
+**Transfer Limits Story – Quick Update**
+
+* Code changes for **V3** completed.
+* Tested successfully last sprint with *Checking*, *Savings*, and *Visa* accounts.
+* This sprint: Added *Mortgage Loan* & *Installment Loan* support – Installment Loan tested today, working fine.
+* Host issues affecting *Checking* & *Savings* testing (balance showing as zero) – DPAPI team working on fix.
+* **80% changes tested & working**; will test remaining account types once host issues are resolved.
+
+---
+
+If you want, I can also make a **polished email format** for sending this to your client so it looks formal and professional. That way it works both in standup and email.
