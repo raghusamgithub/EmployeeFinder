@@ -15,6 +15,8 @@
       height: 100vh;
       overflow: hidden;
     }
+
+    /* Sidebar */
     .sidebar {
       width: 240px;
       background-color: #1f2937;
@@ -25,6 +27,7 @@
       transition: width 0.3s ease;
       position: relative;
     }
+
     .sidebar.collapsed { width: 80px; }
     .sidebar h2 {
       text-align: center;
@@ -34,6 +37,7 @@
       transition: opacity 0.3s ease;
     }
     .sidebar.collapsed h2 { opacity: 0; }
+
     .nav-links { list-style: none; padding: 0; }
     .nav-links li { margin: 10px 0; }
     .nav-links a {
@@ -52,6 +56,8 @@
       border-radius: 8px;
     }
     .sidebar.collapsed .nav-links a span { display: none; }
+
+    /* Toggle button */
     .toggle-btn {
       position: absolute;
       top: 10px;
@@ -65,76 +71,74 @@
       font-size: 18px;
       transition: all 0.3s ease;
     }
+
+    /* Main Content */
     .main-content {
       flex: 1;
       overflow-y: auto;
       padding: 30px;
       transition: all 0.3s ease;
     }
+
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 20px;
     }
+
     h1 { font-size: 1.8rem; color: #111827; }
-    /* Tabs style */
-    .main-tabs {
+
+    .chart-grid {
       display: flex;
-      border-bottom: 1px solid #ddd;
-      margin-bottom: 25px;
-      gap: 1px;
-      overflow-x: auto;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
     }
-    .main-tab {
-      padding: 12px 32px;
-      background: #f8f9fa;
-      cursor: pointer;
-      font-size: 1rem;
-      color: #555;
-      border: none;
-      outline: none;
-      transition: background 0.2s,color 0.2s;
-      font-weight: 500;
-      border-top-left-radius: 10px;
-      border-top-right-radius: 10px;
-      position: relative;
-    }
-    .main-tab.active,
-    .main-tab:hover {
-      background: #eef3ff;
-      color: #007bff;
-      font-weight: 600;
-    }
-    /* Chart wrappers */
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-    .chart-card {
+
+    .chart-container {
+      flex: 1 1 45%;
       background: #fff;
       padding: 25px;
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      min-width: 400px;
-      max-width: 950px;
-      margin: 0 auto;
+      min-width: 480px;
     }
-    /* Keep your original styles for elements within each tab */
-    .toggle-buttons { display: flex; gap: 10px; margin-left: 14px;}
+
+    .toggle-buttons { display: flex; gap: 10px; }
     .toggle-buttons button {
-      padding: 8px 16px; border: none; border-radius: 20px;
-      background: #ecf0f1; color: #333;
-      cursor: pointer; font-weight: 500;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 20px;
+      background: #ecf0f1;
+      color: #333;
+      cursor: pointer;
+      font-weight: 500;
     }
     .toggle-buttons button.active { background: #3498db; color: #fff; }
+
     .value-display {
-      display: flex; justify-content: space-around; margin-top: 15px;
-      font-size: 15px; font-weight: 500;
+      display: flex;
+      justify-content: space-around;
+      margin-top: 15px;
+      font-size: 15px;
+      font-weight: 500;
     }
+
     .allocated { color: #f1c40f; }
     .usage { color: #9b59b6; }
+
     .tabs { display: flex; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; }
-    .tab { padding: 6px 14px; cursor: pointer; border-right: 1px solid #ddd; font-size: 14px; background-color: #fff; color: #555; }
+    .tab {
+      padding: 6px 14px;
+      cursor: pointer;
+      border-right: 1px solid #ddd;
+      font-size: 14px;
+      background-color: #fff;
+      color: #555;
+    }
     .tab.active { background-color: #eef3ff; font-weight: 600; color: #007bff; }
+
     select {
       padding: 6px 10px;
       border: 1px solid #ccc;
@@ -142,8 +146,8 @@
       background-color: #fff;
       font-size: 14px;
       cursor: pointer;
-      margin-left:10px;
     }
+
     .filter-bar {
       display: flex;
       align-items: center;
@@ -153,8 +157,9 @@
       border-radius: 10px;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
       width: fit-content;
-      margin: 12px auto 20px auto;
+      margin: 0 auto 20px auto;
     }
+
     .charts-container {
       display: flex;
       flex-wrap: wrap;
@@ -162,6 +167,7 @@
       gap: 20px;
       width: 100%;
     }
+
     .card {
       width: 340px;
       background: #fff;
@@ -171,26 +177,33 @@
       display: flex;
       flex-direction: column;
     }
+
     .card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 10px;
     }
+
     .card-title { font-size: 16px; font-weight: 600; color: #333; }
     .date-range { font-size: 12px; color: #999; }
+
     .stats {
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
       margin-bottom: 10px;
     }
+
     .percentage { font-size: 26px; font-weight: 600; color: #000; }
     .negative { color: #e74c3c; }
+
     canvas { height: 160px !important; width: 100% !important; }
+
     .goal-line { font-size: 10px; color: #999; text-align: right; margin-top: 4px; }
+
     @media (max-width: 1000px) {
-      .chart-card, .card { min-width: 95vw; max-width: 100vw;}
+      .chart-container { min-width: 100%; }
     }
   </style>
 </head>
@@ -208,21 +221,15 @@
     </ul>
   </div>
 
+  <!-- Main Content -->
   <div class="main-content">
+    <!-- Dashboard Page -->
     <div id="dashboard" class="page">
-      <div class="header">
-        <h1>Analytics Dashboard</h1>
-      </div>
-      <div class="main-tabs">
-        <button class="main-tab active" data-tab="license-tab">License Usage</button>
-        <button class="main-tab" data-tab="impact-tab">Impact Analytics</button>
-        <button class="main-tab" data-tab="acceptance-tab">Acceptance & Retention</button>
-        <button class="main-tab" data-tab="developer-tab">Developer Usage</button>
-      </div>
+      <div class="header"><h1>Analytics Dashboard</h1></div>
 
-      <!-- LICENSE CHART TAB -->
-      <div class="tab-content active" id="license-tab">
-        <div class="chart-card">
+      <div class="chart-grid">
+        <!-- Chart 1 -->
+        <div class="chart-container">
           <div class="header">
             <h3>Allocated Licenses vs License Usage</h3>
             <div class="toggle-buttons">
@@ -236,14 +243,12 @@
             <div class="usage">Usage: <span id="usageValue">-</span></div>
           </div>
         </div>
-      </div>
 
-      <!-- IMPACT CHART TAB -->
-      <div class="tab-content" id="impact-tab">
-        <div class="chart-card">
+        <!-- Chart 2 -->
+        <div class="chart-container">
           <div class="header">
             <h3>Impact Analytics</h3>
-            <div class="tabs" style="margin-right:10px;">
+            <div class="tabs">
               <div class="tab active" data-type="suggestions">Suggestions</div>
               <div class="tab" data-type="loc">Lines of Code</div>
             </div>
@@ -256,80 +261,59 @@
         </div>
       </div>
 
-      <!-- ACCEPTANCE + RETENTION CHART TAB -->
-      <div class="tab-content" id="acceptance-tab">
-        <div class="chart-card">
-          <div class="filter-bar">
-            <label>From:</label>
-            <input type="date" id="fromDate" value="2025-08-25" />
-            <label>To:</label>
-            <input type="date" id="toDate" value="2025-08-30" />
-            <button id="applyBtn">Apply</button>
-          </div>
-          <div class="charts-container" style="margin-bottom:10px;">
-            <div class="card">
-              <div class="card-header">
-                <div>
-                  <div class="card-title">Acceptance Rate</div>
-                  <div class="date-range" id="acceptanceRange">Aug 25 – Aug 30</div>
-                </div>
-              </div>
-              <div class="stats">
-                <div class="percentage" id="acceptanceCurrent">28.89%</div>
-                <div class="percentage negative">0%<br>
-                  <span style="font-size:12px;">-100%</span>
-                </div>
-              </div>
-              <canvas id="acceptanceChart"></canvas>
-              <div class="goal-line">--- 35% Goal</div>
-            </div>
-            <div class="card">
-              <div class="card-header">
-                <div>
-                  <div class="card-title">Suggestion Retention Rate</div>
-                  <div class="date-range" id="retentionRange">Aug 25 – Aug 30</div>
-                </div>
-              </div>
-              <div class="stats">
-                <div class="percentage" id="retentionCurrent">19.48%</div>
-                <div class="percentage negative">0%<br>
-                  <span style="font-size:12px;">-100%</span>
-                </div>
-              </div>
-              <canvas id="retentionChart"></canvas>
-              <div class="goal-line">--- 25% Goal</div>
-            </div>
-          </div>
+      <!-- Acceptance & Retention -->
+      <div class="filter-bar">
+        <label>From:</label>
+        <input type="date" id="fromDate" value="2025-08-25" />
+        <label>To:</label>
+        <input type="date" id="toDate" value="2025-08-30" />
+        <button id="applyBtn">Apply</button>
+      </div>
+
+      <div class="charts-container">
+        <div class="card">
+          <div class="card-header"><div><div class="card-title">Acceptance Rate</div><div class="date-range" id="acceptanceRange">Aug 25 – Aug 30</div></div></div>
+          <div class="stats"><div class="percentage" id="acceptanceCurrent">28.89%</div><div class="percentage negative">0%<br><span style="font-size:12px;">-100%</span></div></div>
+          <canvas id="acceptanceChart"></canvas>
+          <div class="goal-line">--- 35% Goal</div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div><div class="card-title">Suggestion Retention Rate</div><div class="date-range" id="retentionRange">Aug 25 – Aug 30</div></div></div>
+          <div class="stats"><div class="percentage" id="retentionCurrent">19.48%</div><div class="percentage negative">0%<br><span style="font-size:12px;">-100%</span></div></div>
+          <canvas id="retentionChart"></canvas>
+          <div class="goal-line">--- 25% Goal</div>
         </div>
       </div>
 
-      <!-- DEVELOPER USAGE TAB -->
-      <div class="tab-content" id="developer-tab">
-        <div class="chart-card">
-          <div class="header" style="margin-bottom:10px;">
-            <h3>Developer Usage Insights</h3>
-            <div class="tabs" id="devTabs">
-              <div class="tab active" data-type="languages">Programming Languages</div>
-              <div class="tab" data-type="editors">Editors</div>
-              <div class="tab" data-type="completion">IDE Code Completion Models</div>
-              <div class="tab" data-type="chat">Chat Models</div>
-            </div>
+      <!-- Developer Usage Insights -->
+      <div class="chart-container" style="margin-top: 20px; width: 100%; max-width: 800px;">
+        <div class="header">
+          <h3>Developer Usage Insights</h3>
+          <div class="tabs" id="devTabs">
+            <div class="tab active" data-type="languages">Programming Languages</div>
+            <div class="tab" data-type="editors">Editors</div>
+            <div class="tab" data-type="completion">IDE Code Completion Models</div>
+            <div class="tab" data-type="chat">Chat Models</div>
           </div>
-          <canvas id="developerChart"></canvas>
         </div>
+        <canvas id="developerChart"></canvas>
       </div>
     </div>
+
     <!-- Other Pages -->
     <div id="users" class="page" style="display:none;"><h1>Users Page</h1></div>
     <div id="projects" class="page" style="display:none;"><h1>Projects Page</h1></div>
     <div id="analytics" class="page" style="display:none;"><h1>Analytics Overview</h1></div>
     <div id="settings" class="page" style="display:none;"><h1>Settings</h1></div>
   </div>
+
   <script>
     // Sidebar toggle
     document.getElementById("toggleBtn").addEventListener("click", () => {
       document.getElementById("sidebar").classList.toggle("collapsed");
     });
+
     // Page switch
     document.querySelectorAll(".nav-links a").forEach(link => {
       link.addEventListener("click", e => {
@@ -341,23 +325,13 @@
       });
     });
 
-    // Main Dashboard Tab Handler
-    document.querySelectorAll('.main-tab').forEach(tab=>{
-      tab.addEventListener('click',()=>{
-        document.querySelectorAll('.main-tab').forEach(t=>t.classList.remove('active'));
-        tab.classList.add('active');
-        document.querySelectorAll('.tab-content').forEach(tc=>tc.classList.remove('active'));
-        document.getElementById(tab.dataset.tab).classList.add('active');
-      });
-    });
-
-    // ---- License Chart ----
-    const ctx = document.getElementById("licenseChart").getContext("2d");
+    // License Chart
+    const ctx = document.getElementById("licenseChart");
     const allocatedEl = document.getElementById("allocatedValue");
     const usageEl = document.getElementById("usageValue");
     const weeklyData = { labels: ["Aug 25-31", "Sep 1-7", "Oct 6-12", "Nov 10-16"], allocated: [8, 12, 14, 17], usage: [5, 9, 12, 15] };
     const dailyData = { labels: ["Mon", "Tue", "Wed", "Thu", "Fri"], allocated: [12, 13, 15, 16, 18], usage: [8, 9, 11, 13, 14] };
-    let licenseChart = new Chart(ctx, {
+    const licenseChart = new Chart(ctx, {
       type: "line",
       data: {
         labels: weeklyData.labels,
@@ -388,11 +362,9 @@
       licenseChart.update();
       document.getElementById("weeklyBtn").classList.toggle("active", type === "weekly");
       document.getElementById("dailyBtn").classList.toggle("active", type === "daily");
-      allocatedEl.textContent = "-";
-      usageEl.textContent = "-";
     }
 
-    // ---- Impact Chart ----
+    // Impact Chart
     const ctx2 = document.getElementById("impactChart").getContext("2d");
     const impactData = {
       weeklyLabels: ["Aug 25-31", "Sep 1-7", "Sep 8-14", "Sep 15-21"],
@@ -402,7 +374,7 @@
         loc: { weekly: { s: [500,400,650,300], a: [250,220,310,200] }, daily: { s: [80,60,100,50,90], a: [40,30,60,35,50] } }
       }
     };
-    let impactChart = new Chart(ctx2, {
+    const impactChart = new Chart(ctx2, {
       type: "line",
       data: { labels: impactData.weeklyLabels, datasets: [
         { label: "Suggestions", data: impactData.datasets.suggestions.weekly.s, borderColor: "#F6BE00", fill: false, tension: 0.4 },
@@ -411,21 +383,20 @@
       options: { responsive: true, plugins: { legend: { position: "top" } } }
     });
     const viewType = document.getElementById("viewType");
-    const tabs = document.querySelectorAll("#impact-tab .tab");
+    const tabs = document.querySelectorAll(".tab");
     viewType.addEventListener("change", updateImpact);
     tabs.forEach(tab => tab.addEventListener("click", () => { tabs.forEach(t => t.classList.remove("active")); tab.classList.add("active"); updateImpact(); }));
     function updateImpact() {
-      const tab = document.querySelector("#impact-tab .tab.active").dataset.type;
+      const tab = document.querySelector(".tab.active").dataset.type;
       const type = viewType.value;
       const data = impactData.datasets[tab][type];
       impactChart.data.labels = type === "weekly" ? impactData.weeklyLabels : impactData.dailyLabels;
       impactChart.data.datasets[0].data = data.s;
       impactChart.data.datasets[1].data = data.a;
-      impactChart.data.datasets[0].label = tab === "loc" ? "Lines of Code" : "Suggestions";
       impactChart.update();
     }
 
-    // ---- Acceptance & Retention ----
+    // Acceptance & Retention Charts
     function generateData(startDate, endDate) {
       const data = [], labels = [];
       let cur = new Date(startDate);
@@ -438,8 +409,8 @@
     }
     const aCtx = document.getElementById("acceptanceChart").getContext("2d");
     const rCtx = document.getElementById("retentionChart").getContext("2d");
-    let acceptanceChart = new Chart(aCtx, { type: "bar", data: { labels: ["Aug25","Aug26","Aug27","Aug28","Aug29","Aug30"], datasets: [{ label: "Acceptance %", data: [30,25,40,20,35,28], backgroundColor: "#4CAF50" }] } });
-    let retentionChart = new Chart(rCtx, { type: "bar", data: { labels: ["Aug25","Aug26","Aug27","Aug28","Aug29","Aug30"], datasets: [{ label: "Retention %", data: [20,18,25,15,22,19], backgroundColor: "#F39C12" }] } });
+    const acceptanceChart = new Chart(aCtx, { type: "bar", data: { labels: ["Aug25","Aug26","Aug27","Aug28","Aug29","Aug30"], datasets: [{ label: "Acceptance %", data: [30,25,40,20,35,28], backgroundColor: "#4CAF50" }] } });
+    const retentionChart = new Chart(rCtx, { type: "bar", data: { labels: ["Aug25","Aug26","Aug27","Aug28","Aug29","Aug30"], datasets: [{ label: "Retention %", data: [20,18,25,15,22,19], backgroundColor: "#F39C12" }] } });
     document.getElementById("applyBtn").onclick = () => {
       const from = new Date(document.getElementById("fromDate").value);
       const to = new Date(document.getElementById("toDate").value);
@@ -451,10 +422,9 @@
       retentionChart.data.datasets[0].data = rData.data;
       acceptanceChart.update();
       retentionChart.update();
-      // Optionally update percentage values and date ranges here...
     };
 
-    // ---- Developer Usage Insights ----
+    // Developer Usage Insights
     const devCtx = document.getElementById("developerChart").getContext("2d");
     const devData = {
       languages: { labels: ["JavaScript","Python","C#","Java","TypeScript","C++"], data: [35,30,15,10,7,3], color: "#3498db" },
@@ -462,7 +432,7 @@
       completion: { labels: ["GitHub Copilot","TabNine","Intellicode","Kite"], data: [60,25,10,5], color: "#f39c12" },
       chat: { labels: ["ChatGPT","Gemini","Claude","Copilot Chat"], data: [70,15,10,5], color: "#9b59b6" }
     };
-    let developerChart = new Chart(devCtx, {
+    const baseConfig = {
       type: "bar",
       data: { labels: devData.languages.labels, datasets: [{ label: "Usage (%)", data: devData.languages.data, backgroundColor: devData.languages.color }] },
       options: {
@@ -471,7 +441,8 @@
         plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `${ctx.parsed.x}%` } } },
         scales: { x: { beginAtZero: true, ticks: { callback: val => val + "%" } }, y: { ticks: { color: "#333" } } }
       }
-    });
+    };
+    let developerChart = new Chart(devCtx, baseConfig);
     document.querySelectorAll("#devTabs .tab").forEach(tab => {
       tab.addEventListener("click", () => {
         document.querySelectorAll("#devTabs .tab").forEach(t => t.classList.remove("active"));
