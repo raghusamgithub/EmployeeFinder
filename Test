@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Analytics Dashboard</title>
+  <title>Admin Dashboard - Analytics</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -63,6 +63,7 @@
 
     .sidebar.collapsed .nav-links a span { display: none; }
 
+    /* Toggle button */
     .toggle-btn {
       position: absolute;
       top: 10px;
@@ -109,90 +110,49 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
 
-    /* Bottom section (Acceptance + Retention) */
-    .bottom-section {
-      margin-top: 30px;
-      background: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    .toggle-buttons {
+      display: flex; gap: 10px;
     }
 
-    .filter-bar {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-
-    .filter-bar label {
+    .toggle-buttons button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 20px;
+      background: #ecf0f1;
+      color: #333;
+      cursor: pointer;
       font-weight: 500;
-      color: #444;
     }
 
-    .filter-bar input {
+    .toggle-buttons button.active {
+      background: #3498db; color: #fff;
+    }
+
+    .value-display {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 15px;
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .allocated { color: #f1c40f; }
+    .usage { color: #9b59b6; }
+
+    .tabs { display: flex; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; }
+    .tab { padding: 6px 14px; cursor: pointer; border-right: 1px solid #ddd; font-size: 14px; background-color: #fff; color: #555; }
+    .tab.active { background-color: #eef3ff; font-weight: 600; color: #007bff; }
+
+    select {
+      padding: 6px 10px;
       border: 1px solid #ccc;
       border-radius: 6px;
-      padding: 5px 8px;
+      background-color: #fff;
       font-size: 14px;
-    }
-
-    .filter-bar button {
-      padding: 6px 14px;
-      background-color: #007bff;
-      border: none;
-      color: #fff;
-      border-radius: 6px;
       cursor: pointer;
-      transition: 0.3s;
     }
 
-    .filter-bar button:hover {
-      background-color: #005dc1;
-    }
-
-    .chart-row {
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
-
-    .card {
-      flex: 1;
-      min-width: 340px;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-      padding: 20px;
-    }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-
-    .card-title { font-size: 16px; font-weight: 600; color: #333; }
-    .date-range { font-size: 12px; color: #999; }
-
-    .stats {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      margin-bottom: 10px;
-    }
-
-    .percentage { font-size: 26px; font-weight: 600; color: #000; }
-    .negative { color: #e74c3c; }
-
-    canvas { height: 180px !important; width: 100% !important; }
-
-    @media (max-width: 1000px) {
-      .chart-container, .card { min-width: 100%; }
-      .chart-row { flex-direction: column; }
-    }
+    @media (max-width: 1000px) { .chart-container { min-width: 100%; } }
   </style>
 </head>
 <body>
@@ -204,177 +164,199 @@
       <li><a href="#" class="active" data-page="dashboard"><i>📊</i><span>Dashboard</span></a></li>
       <li><a href="#" data-page="users"><i>👥</i><span>Users</span></a></li>
       <li><a href="#" data-page="projects"><i>💼</i><span>Projects</span></a></li>
+      <li><a href="#" data-page="analytics"><i>🧩</i><span>Analytics</span></a></li>
       <li><a href="#" data-page="settings"><i>⚙️</i><span>Settings</span></a></li>
     </ul>
   </div>
 
   <!-- Main Content -->
   <div class="main-content">
+    <!-- Dashboard Page -->
     <div id="dashboard" class="page">
       <div class="header"><h1>Analytics Dashboard</h1></div>
-
-      <!-- Top charts -->
       <div class="chart-grid">
+        <!-- Chart 1 -->
         <div class="chart-container">
           <div class="header">
             <h3>Allocated Licenses vs License Usage</h3>
+            <div class="toggle-buttons">
+              <button id="weeklyBtn" class="active">Weekly</button>
+              <button id="dailyBtn">Daily</button>
+            </div>
           </div>
           <canvas id="licenseChart"></canvas>
+          <div class="value-display">
+            <div class="allocated">Allocated: <span id="allocatedValue">-</span></div>
+            <div class="usage">Usage: <span id="usageValue">-</span></div>
+          </div>
         </div>
 
+        <!-- Chart 2 -->
         <div class="chart-container">
           <div class="header">
             <h3>Impact Analytics</h3>
+            <div class="tabs">
+              <div class="tab active" data-type="suggestions">Suggestions</div>
+              <div class="tab" data-type="loc">Lines of Code</div>
+            </div>
+            <select id="viewType">
+              <option value="weekly">Weekly</option>
+              <option value="daily">Daily</option>
+            </select>
           </div>
           <canvas id="impactChart"></canvas>
         </div>
       </div>
-
-      <!-- Bottom charts -->
-      <div class="bottom-section">
-        <div class="filter-bar">
-          <label for="fromDate">From:</label>
-          <input type="date" id="fromDate" value="2025-08-25" />
-          <label for="toDate">To:</label>
-          <input type="date" id="toDate" value="2025-08-30" />
-          <button id="applyBtn">Apply</button>
-        </div>
-
-        <div class="chart-row">
-          <div class="card">
-            <div class="card-header">
-              <div>
-                <div class="card-title">Acceptance Rate</div>
-                <div class="date-range" id="acceptanceRange">Aug 25 – Aug 30</div>
-              </div>
-            </div>
-            <div class="stats">
-              <div class="percentage" id="acceptanceCurrent">28.89%</div>
-              <div class="percentage negative">0%<br><span style="font-size:12px;">-100%</span></div>
-            </div>
-            <canvas id="acceptanceChart"></canvas>
-          </div>
-
-          <div class="card">
-            <div class="card-header">
-              <div>
-                <div class="card-title">Suggestion Retention Rate</div>
-                <div class="date-range" id="retentionRange">Aug 25 – Aug 30</div>
-              </div>
-            </div>
-            <div class="stats">
-              <div class="percentage" id="retentionCurrent">19.48%</div>
-              <div class="percentage negative">0%<br><span style="font-size:12px;">-100%</span></div>
-            </div>
-            <canvas id="retentionChart"></canvas>
-          </div>
-        </div>
-      </div>
     </div>
 
-    <!-- Other Pages -->
+    <!-- Users Page -->
     <div id="users" class="page" style="display:none;">
       <h1>Users Page</h1>
+      <p>Manage users, view stats, and control access levels here.</p>
     </div>
+
+    <!-- Projects Page -->
     <div id="projects" class="page" style="display:none;">
       <h1>Projects Page</h1>
+      <p>Track project progress, deadlines, and reports.</p>
     </div>
+
+    <!-- Analytics Page -->
+    <div id="analytics" class="page" style="display:none;">
+      <h1>Analytics Overview</h1>
+      <p>Detailed system-wide analytics and KPIs.</p>
+    </div>
+
+    <!-- Settings Page -->
     <div id="settings" class="page" style="display:none;">
-      <h1>Settings Page</h1>
+      <h1>Settings</h1>
+      <p>Adjust application preferences and configurations.</p>
     </div>
   </div>
 
   <script>
-    // Sidebar Toggle
+    // Sidebar toggle
     document.getElementById("toggleBtn").addEventListener("click", () => {
       document.getElementById("sidebar").classList.toggle("collapsed");
     });
 
-    // Page Navigation
+    // Sidebar navigation page switching
     const links = document.querySelectorAll(".nav-links a");
     const pages = document.querySelectorAll(".page");
+
     links.forEach(link => {
       link.addEventListener("click", (e) => {
         e.preventDefault();
         links.forEach(l => l.classList.remove("active"));
         link.classList.add("active");
-        const page = link.dataset.page;
+        const targetPage = link.getAttribute("data-page");
         pages.forEach(p => p.style.display = "none");
-        document.getElementById(page).style.display = "block";
+        document.getElementById(targetPage).style.display = "block";
       });
     });
 
-    // License Chart
-    new Chart(document.getElementById("licenseChart"), {
+    // Chart.js logic (only loads on Dashboard)
+    const ctx = document.getElementById("licenseChart");
+    const allocatedEl = document.getElementById("allocatedValue");
+    const usageEl = document.getElementById("usageValue");
+
+    const weeklyData = {
+      labels: ["Aug 25-31", "Sep 01-07", "Oct 06-12", "Nov 10-16", "Dec 15-21", "Jan 19-25"],
+      allocated: [8, 12, 14, 17, 18, 19],
+      usage: [5, 9, 12, 15, 16, 18],
+    };
+    const dailyData = {
+      labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+      allocated: [12, 13, 15, 14, 16, 17, 18],
+      usage: [8, 9, 11, 12, 13, 15, 14],
+    };
+
+    const licenseChart = new Chart(ctx, {
       type: "line",
       data: {
-        labels: ["Aug", "Sep", "Oct", "Nov", "Dec"],
+        labels: weeklyData.labels,
         datasets: [
-          { label: "Allocated", data: [10,12,15,18,20], borderColor: "#f1c40f", fill: false },
-          { label: "Usage", data: [8,10,12,17,19], borderColor: "#9b59b6", fill: false }
+          { label: "Allocated Licenses", data: weeklyData.allocated, borderColor: "#f1c40f", backgroundColor: "rgba(241,196,15,0.2)", tension: 0.4, fill: true },
+          { label: "License Usage", data: weeklyData.usage, borderColor: "#9b59b6", backgroundColor: "rgba(155,89,182,0.2)", tension: 0.4, fill: true },
         ]
       },
-      options: { responsive: true, plugins: { legend: { position: "top" } } }
-    });
-
-    // Impact Chart
-    new Chart(document.getElementById("impactChart"), {
-      type: "bar",
-      data: {
-        labels: ["Aug", "Sep", "Oct", "Nov", "Dec"],
-        datasets: [
-          { label: "Suggestions", data: [120,150,180,140,160], backgroundColor: "#F6BE00" },
-          { label: "Acceptances", data: [80,100,140,120,130], backgroundColor: "#9B5DE5" }
-        ]
-      },
-      options: { responsive: true, plugins: { legend: { position: "top" } } }
-    });
-
-    // Acceptance & Retention Charts
-    const commonOptions = {
-      type: "line",
       options: {
         responsive: true,
-        plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true, max: 100 } }
+        interaction: { mode: "index", intersect: false },
+        plugins: { legend: { position: "top" } },
+        scales: { y: { beginAtZero: true } },
+        onHover: (event, active) => {
+          if (active.length) {
+            const i = active[0].index;
+            allocatedEl.textContent = licenseChart.data.datasets[0].data[i];
+            usageEl.textContent = licenseChart.data.datasets[1].data[i];
+          }
+        }
+      }
+    });
+
+    document.getElementById("weeklyBtn").onclick = () => updateChart(weeklyData, "weekly");
+    document.getElementById("dailyBtn").onclick = () => updateChart(dailyData, "daily");
+
+    function updateChart(data, type) {
+      licenseChart.data.labels = data.labels;
+      licenseChart.data.datasets[0].data = data.allocated;
+      licenseChart.data.datasets[1].data = data.usage;
+      licenseChart.update();
+      allocatedEl.textContent = "-";
+      usageEl.textContent = "-";
+      document.getElementById("weeklyBtn").classList.toggle("active", type === "weekly");
+      document.getElementById("dailyBtn").classList.toggle("active", type === "daily");
+    }
+
+    // Impact chart
+    const ctx2 = document.getElementById("impactChart").getContext("2d");
+    const impactData = {
+      weeklyLabels: ["Aug 25-31", "Sep 1-7", "Sep 8-14", "Sep 15-21"],
+      dailyLabels: ["Mon", "Tue", "Wed", "Thu", "Fri"],
+      datasets: {
+        suggestions: {
+          weekly: { s: [300,200,320,150], a: [100,80,90,120] },
+          daily: { s: [50,40,70,30,60], a: [20,25,30,15,40] }
+        },
+        loc: {
+          weekly: { s: [500,400,650,300], a: [250,220,310,200] },
+          daily: { s: [80,60,100,50,90], a: [40,30,60,35,50] }
+        }
       }
     };
 
-    const acceptanceCtx = document.getElementById("acceptanceChart");
-    const retentionCtx = document.getElementById("retentionChart");
+    const impactChart = new Chart(ctx2, {
+      type: "line",
+      data: {
+        labels: impactData.weeklyLabels,
+        datasets: [
+          { label: "Suggestions", data: impactData.datasets.suggestions.weekly.s, borderColor: "#F6BE00", tension: 0.3, fill: false },
+          { label: "Acceptances", data: impactData.datasets.suggestions.weekly.a, borderColor: "#9B5DE5", tension: 0.3, fill: false }
+        ]
+      },
+      options: { responsive: true, plugins: { legend: { position: "top" } } }
+    });
 
-    function generateData(start, end) {
-      const data = [];
-      const labels = [];
-      let date = new Date(start);
-      while (date <= end) {
-        labels.push(date.toISOString().slice(5, 10));
-        data.push(Math.floor(Math.random() * 40) + 10);
-        date.setDate(date.getDate() + 1);
-      }
-      return { labels, data };
+    const viewType = document.getElementById("viewType");
+    const tabs = document.querySelectorAll(".tab");
+    viewType.addEventListener("change", updateImpact);
+    tabs.forEach(tab => tab.addEventListener("click", () => {
+      tabs.forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+      updateImpact();
+    }));
+
+    function updateImpact() {
+      const tab = document.querySelector(".tab.active").dataset.type;
+      const type = viewType.value;
+      const data = impactData.datasets[tab][type];
+      impactChart.data.labels = type === "weekly" ? impactData.weeklyLabels : impactData.dailyLabels;
+      impactChart.data.datasets[0].data = data.s;
+      impactChart.data.datasets[1].data = data.a;
+      impactChart.data.datasets[0].label = tab === "loc" ? "Lines of Code" : "Suggestions";
+      impactChart.update();
     }
-
-    function renderCharts() {
-      const start = new Date(document.getElementById("fromDate").value);
-      const end = new Date(document.getElementById("toDate").value);
-      const acc = generateData(start, end);
-      const ret = generateData(start, end);
-
-      new Chart(acceptanceCtx, {
-        ...commonOptions,
-        data: { labels: acc.labels, datasets: [{ label: "Acceptance Rate", data: acc.data, borderColor: "#FF6384", backgroundColor: "rgba(255,99,132,0.2)", fill: true }] }
-      });
-
-      new Chart(retentionCtx, {
-        ...commonOptions,
-        data: { labels: ret.labels, datasets: [{ label: "Suggestion Retention", data: ret.data, borderColor: "#36A2EB", backgroundColor: "rgba(54,162,235,0.2)", fill: true }] }
-      });
-    }
-
-    renderCharts();
-
-    document.getElementById("applyBtn").addEventListener("click", renderCharts);
   </script>
 </body>
 </html>
