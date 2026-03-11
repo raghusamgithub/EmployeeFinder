@@ -1,2 +1,905 @@
-AngularTesting
 
+For a 30-minute technical interview, you need a balanced structure that checks concepts + practical coding ability. Below is a simple interview flow with questions and answers for:
+
+C#
+
+OOP
+
+.NET Core Web API
+
+LINQ
+
+SQL
+
+Small coding exercise
+
+
+This structure works well for mid-level (.NET developer with 3–6 years experience).
+
+
+---
+
+30-Minute .NET Interview Plan
+
+Time	Topic
+
+5 min	C# & OOP Concepts
+5 min	.NET Core Web API
+5 min	LINQ
+5 min	SQL
+10 min	Coding Exercise
+
+
+
+---
+
+1. C# / OOP Questions (5 min)
+
+Question 1: What are the 4 pillars of OOP?
+
+Answer:
+
+1. Encapsulation
+Binding data and methods together and restricting direct access.
+
+Example:
+
+
+
+public class Account
+{
+    private decimal balance;
+
+    public void Deposit(decimal amount)
+    {
+        balance += amount;
+    }
+
+    public decimal GetBalance()
+    {
+        return balance;
+    }
+}
+
+2. Inheritance
+Child class inherits properties and methods from parent.
+
+
+
+public class Animal
+{
+    public void Eat() {}
+}
+
+public class Dog : Animal
+{
+    public void Bark() {}
+}
+
+3. Polymorphism
+
+
+
+Compile time → Method Overloading
+
+Runtime → Method Overriding
+
+
+public class Shape
+{
+    public virtual void Draw()
+    {
+        Console.WriteLine("Drawing Shape");
+    }
+}
+
+public class Circle : Shape
+{
+    public override void Draw()
+    {
+        Console.WriteLine("Drawing Circle");
+    }
+}
+
+4. Abstraction
+Hiding implementation details using abstract class or interface
+
+
+
+public interface IPayment
+{
+    void Pay();
+}
+
+
+---
+
+Question 2: Difference between Abstract Class and Interface?
+
+Abstract Class	Interface
+
+Can have implementation	Only method declaration
+Supports constructors	No constructor
+Supports fields	No fields
+Single inheritance	Multiple interfaces possible
+
+
+Example:
+
+public interface ILogger
+{
+    void Log(string message);
+}
+
+
+---
+
+Question 3: What is Dependency Injection?
+
+Answer
+
+Dependency Injection is a design pattern where dependencies are injected into a class instead of creating them inside the class.
+
+Example:
+
+public class OrderService
+{
+    private readonly ILogger _logger;
+
+    public OrderService(ILogger logger)
+    {
+        _logger = logger;
+    }
+}
+
+Benefits:
+
+Loose coupling
+
+Easy unit testing
+
+Better maintainability
+
+
+
+---
+
+2. .NET Core Web API Questions (5 min)
+
+Question 4: What are the main components of ASP.NET Core Web API?
+
+Answer:
+
+1. Controller
+
+
+2. Routing
+
+
+3. Middleware
+
+
+4. Dependency Injection
+
+
+5. Model Binding
+
+
+6. Filters
+
+
+
+Example Controller:
+
+[ApiController]
+[Route("api/[controller]")]
+public class ProductController : ControllerBase
+{
+    [HttpGet]
+    public IActionResult GetProducts()
+    {
+        return Ok();
+    }
+}
+
+
+---
+
+Question 5: Difference between IActionResult and ActionResult<T>
+
+IActionResult
+
+Returns different HTTP responses.
+
+public IActionResult Get()
+{
+    return Ok();
+}
+
+ActionResult<T>
+
+Strongly typed response.
+
+public ActionResult<Product> GetProduct()
+{
+    return new Product();
+}
+
+
+---
+
+Question 6: What is Middleware?
+
+Middleware handles HTTP request/response pipeline.
+
+Example:
+
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();
+
+
+---
+
+3. LINQ Questions (5 min)
+
+Question 7: What is LINQ?
+
+LINQ = Language Integrated Query
+
+Used to query:
+
+Collections
+
+Database
+
+XML
+
+
+Example:
+
+var numbers = new List<int> {1,2,3,4,5};
+
+var evenNumbers = numbers.Where(x => x % 2 == 0);
+
+Output:
+
+2
+4
+
+
+---
+
+Question 8: Difference between IEnumerable and IQueryable
+
+IEnumerable	IQueryable
+
+Works with in-memory collections	Works with database
+Executes in application	Executes in database
+Slower for large data	Faster
+
+
+Example:
+
+var data = dbContext.Users.Where(x => x.Age > 25);
+
+
+---
+
+Question 9: What is Deferred Execution?
+
+LINQ query executes only when data is iterated.
+
+Example:
+
+var query = numbers.Where(x => x > 2);
+
+foreach(var item in query)
+{
+    Console.WriteLine(item);
+}
+
+
+---
+
+4. SQL Questions (5 min)
+
+Question 10: Difference between INNER JOIN and LEFT JOIN
+
+INNER JOIN
+
+Returns only matching records.
+
+SELECT *
+FROM Orders o
+INNER JOIN Customers c
+ON o.CustomerId = c.Id
+
+LEFT JOIN
+
+Returns all records from left table.
+
+SELECT *
+FROM Customers c
+LEFT JOIN Orders o
+ON c.Id = o.CustomerId
+
+
+---
+
+Question 11: What is Index?
+
+Index improves query performance.
+
+CREATE INDEX idx_customer_name
+ON Customers(Name);
+
+
+---
+
+Question 12: Difference between DELETE and TRUNCATE
+
+DELETE	TRUNCATE
+
+Removes rows with condition	Removes all rows
+Can rollback	Cannot rollback
+Slower	Faster
+
+
+
+---
+
+5. Coding Exercise (10 min)
+
+Coding Question 1 (Very Good Interview Question)
+
+Write a C# program to find even numbers from a list using LINQ
+
+Expected Answer:
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class Program
+{
+    static void Main()
+    {
+        List<int> numbers = new List<int> {1,2,3,4,5,6,7,8};
+
+        var evenNumbers = numbers.Where(n => n % 2 == 0);
+
+        foreach(var num in evenNumbers)
+        {
+            Console.WriteLine(num);
+        }
+    }
+}
+
+Output
+
+2
+4
+6
+8
+
+
+---
+
+Coding Question 2 (OOP)
+
+Create a base class Shape and derive Circle and Rectangle to calculate area
+
+Expected Answer:
+
+using System;
+
+public abstract class Shape
+{
+    public abstract double CalculateArea();
+}
+
+public class Circle : Shape
+{
+    public double Radius { get; set; }
+
+    public override double CalculateArea()
+    {
+        return Math.PI * Radius * Radius;
+    }
+}
+
+public class Rectangle : Shape
+{
+    public double Length { get; set; }
+    public double Width { get; set; }
+
+    public override double CalculateArea()
+    {
+        return Length * Width;
+    }
+}
+
+
+---
+
+Final Quick Questions (If time remains)
+
+Ask rapid-fire:
+
+1. What is async/await?
+
+
+2. What is Task in C#?
+
+
+3. Difference between First() and FirstOrDefault()
+
+
+4. What is DbContext?
+
+
+5. What is SOLID principle?
+
+
+
+
+---
+
+Tip for You (As Interviewer)
+
+Good evaluation signals:
+
+Good Candidate	Weak Candidate
+
+Explains concepts clearly	Only remembers syntax
+Gives real examples	Cannot explain usage
+Writes clean code	Struggles with basics
+
+
+
+---
+
+If you want, I can also give you 10 very strong interview questions that quickly identify a fake 5-year .NET developer (very useful for technical leads).
+
+
+
+Since you are a Technical Lead with ~14 years experience, these questions help you quickly identify whether a candidate is really experienced or just memorized concepts. These are very effective screening questions for 5–8 year .NET developers.
+
+I’ll give 10 strong questions + expected answers + what to observe.
+
+
+---
+
+10 Strong .NET Interview Questions (To Identify Real Experience)
+
+
+---
+
+1. What happens internally when a Web API request comes in?
+
+Expected Answer (Good Candidate)
+
+Flow should include:
+
+1. Request comes to Kestrel Server
+
+
+2. Goes through Middleware Pipeline
+
+
+3. Routing identifies Controller
+
+
+4. Model Binding
+
+
+5. Filters executed
+
+
+6. Controller Action executes
+
+
+7. Response returned
+
+
+
+Example pipeline:
+
+Client Request
+      ↓
+Kestrel Server
+      ↓
+Middleware (Auth, Logging, etc)
+      ↓
+Routing
+      ↓
+Controller
+      ↓
+Action Method
+      ↓
+Response
+
+Red Flag
+
+Candidate says only:
+
+> "Controller handles request"
+
+
+
+
+---
+
+2. What is the difference between IEnumerable and IQueryable?
+
+Correct Answer
+
+IEnumerable	IQueryable
+
+Works in memory	Works with database
+LINQ to Objects	LINQ to Entities
+Executes in application	Executes in database
+Poor for large datasets	Better performance
+
+
+Example:
+
+var users = context.Users.Where(x => x.Age > 25);
+
+With IQueryable → SQL executed in DB.
+
+
+---
+
+3. What is the difference between First() and FirstOrDefault()?
+
+Answer
+
+Method	Behavior
+
+First()	Throws exception if no record
+FirstOrDefault()	Returns default value
+
+
+Example:
+
+var user = users.FirstOrDefault();
+
+Default values:
+
+int -> 0
+string -> null
+object -> null
+
+
+---
+
+4. What is Dependency Injection and why is it important?
+
+Expected Answer
+
+Dependency Injection provides loose coupling between classes.
+
+Example:
+
+Bad Practice:
+
+var repo = new UserRepository();
+
+Good Practice:
+
+public UserService(IUserRepository repo)
+{
+    _repo = repo;
+}
+
+Benefits:
+
+Loose coupling
+
+Easy unit testing
+
+Maintainability
+
+
+Real devs mention
+
+Constructor Injection
+
+Scoped / Singleton / Transient
+
+
+
+---
+
+5. Difference between async/await and normal method?
+
+Expected Answer
+
+Async methods:
+
+Do non-blocking operations
+
+Free the thread while waiting
+
+Improve scalability in web apps
+
+
+Example:
+
+public async Task<string> GetData()
+{
+    var result = await httpClient.GetStringAsync(url);
+    return result;
+}
+
+Important point
+
+Async improves scalability, not speed.
+
+
+---
+
+6. What is the difference between Task and Thread?
+
+Correct Answer
+
+Task	Thread
+
+High-level abstraction	Low-level
+Managed by ThreadPool	Dedicated thread
+Lightweight	Heavy
+
+
+Example:
+
+Task.Run(() => DoWork());
+
+
+---
+
+7. What is the difference between Add, AddAsync, and SaveChanges in EF Core?
+
+Expected Answer
+
+context.Users.Add(user);
+context.SaveChanges();
+
+Explanation:
+
+Add() → Adds entity to tracking
+
+AddAsync() → Async version
+
+SaveChanges() → Executes SQL INSERT
+
+
+Important concept:
+
+> SQL is executed only during SaveChanges.
+
+
+
+
+---
+
+8. Explain SOLID principles briefly
+
+Expected summary:
+
+Principle	Meaning
+
+S	Single Responsibility
+O	Open Closed Principle
+L	Liskov Substitution
+I	Interface Segregation
+D	Dependency Inversion
+
+
+Example:
+
+Single Responsibility
+
+Bad:
+
+UserService
+ - SaveUser
+ - SendEmail
+ - GenerateReport
+
+Good:
+
+UserService
+EmailService
+ReportService
+
+
+---
+
+9. What is Middleware in .NET Core?
+
+Middleware handles HTTP pipeline.
+
+Example:
+
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();
+
+Each middleware:
+
+Processes request
+
+Passes to next middleware
+
+
+Example:
+
+Logging Middleware
+
+
+---
+
+10. SQL Question (Very Effective)
+
+Ask this:
+
+Employees Table
+
+Id	Name	Salary	Department
+
+
+
+Question
+
+Write SQL to find 2nd highest salary.
+
+Expected Answer
+
+Method 1
+
+SELECT MAX(Salary)
+FROM Employees
+WHERE Salary < (SELECT MAX(Salary) FROM Employees);
+
+Method 2
+
+SELECT Salary
+FROM Employees
+ORDER BY Salary DESC
+OFFSET 1 ROW FETCH NEXT 1 ROW ONLY;
+
+
+---
+
+Coding Question (Very Good for Interview)
+
+Ask candidate to write this.
+
+Question
+
+Reverse a string in C#
+
+Expected Answer:
+
+string str = "hello";
+char[] arr = str.ToCharArray();
+
+Array.Reverse(arr);
+
+string result = new string(arr);
+
+Console.WriteLine(result);
+
+Output:
+
+olleh
+
+
+---
+
+Bonus LINQ Coding Question
+
+Ask candidate:
+
+Find duplicate numbers in list
+
+Example Input
+
+1,2,3,4,2,5,3
+
+Expected Answer
+
+var duplicates = numbers
+                .GroupBy(x => x)
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key);
+
+
+---
+
+Pro Tip (Very Powerful Question)
+
+Ask this:
+
+What is the difference between ToList() and ToArray()?
+
+Good Answer:
+
+ToList	ToArray
+
+Returns List	Returns Array
+Dynamic size	Fixed size
+Slightly slower	Slightly faster
+
+
+
+---
+
+Simple Coding Question (Best Interview Question)
+
+Ask candidate to write:
+
+Check if number is Prime
+
+Expected Answer
+
+bool IsPrime(int number)
+{
+    if (number <= 1) return false;
+
+    for(int i=2; i<=Math.Sqrt(number); i++)
+    {
+        if(number % i == 0)
+            return false;
+    }
+
+    return true;
+}
+
+
+---
+
+My Suggestion for Your 30 Min Interview
+
+Ask in this order:
+
+First 10 minutes
+
+1. OOP concepts
+
+
+2. Dependency Injection
+
+
+3. async/await
+
+
+
+Next 10 minutes
+
+4. Web API pipeline
+
+
+5. LINQ question
+
+
+6. SQL question
+
+
+
+Last 10 minutes
+
+Coding:
+
+Reverse string OR
+
+Find duplicates using LINQ
+
+
+
+---
+
+If you want, I can also give you 5 trick questions that 80% of fake .NET developers fail.
+These are very powerful questions used by senior architects.
