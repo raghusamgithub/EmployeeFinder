@@ -2,142 +2,171 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>XML Mapper with Values</title>
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Response Mapper - Enhanced Logic</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f8f9fa; padding: 40px; color: #333; }
-        .container { max-width: 1200px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .upload-section { text-align: center; border-bottom: 2px solid #eee; padding-bottom: 30px; margin-bottom: 30px; }
-        .upload-btn { background: #007bff; color: white; padding: 12px 25px; border-radius: 6px; cursor: pointer; display: inline-block; font-weight: bold; }
-        #fileInput { display: none; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 40px; background-color: #f0f2f5; color: #333; }
+        .container { max-width: 1200px; margin: auto; background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); }
+        h1 { color: #1a73e8; border-bottom: 3px solid #1a73e8; padding-bottom: 10px; margin-bottom: 30px; }
+        .upload-section { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; padding: 25px; background: #f8f9fa; border: 1px dashed #ced4da; border-radius: 8px; }
+        .input-group { display: flex; flex-direction: column; gap: 8px; }
+        label { font-weight: bold; color: #495057; }
+        input[type="file"] { padding: 10px; background: white; border: 1px solid #ddd; border-radius: 4px; }
+        button { background-color: #1a73e8; color: white; border: none; padding: 15px 30px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: 600; width: 100%; transition: 0.2s; }
+        button:hover { background-color: #1557b0; }
         
-        .preview-container { overflow-x: auto; margin-top: 20px; }
-        table { border-collapse: collapse; width: 100%; font-size: 13px; font-family: 'Courier New', Courier, monospace; }
-        th { background: #e9ecef; text-align: left; padding: 10px; border: 1px solid #dee2e6; }
-        td { border: 1px solid #dee2e6; padding: 8px 15px; min-width: 120px; }
-        .node-text { font-weight: 600; color: #0056b3; }
-        .value-text { color: #28a745; font-weight: 400; }
-        .empty-cell { background-color: #ffffff; }
-        #status { margin-top: 15px; font-weight: bold; }
+        h3 { margin-top: 50px; color: #202124; border-left: 5px solid #1a73e8; padding-left: 15px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 30px; background: white; }
+        th, td { border: 1px solid #e0e0e0; padding: 12px 15px; text-align: left; }
+        th { background-color: #f1f3f4; color: #5f6368; font-weight: 600; text-transform: uppercase; font-size: 12px; }
+        tr:hover { background-color: #f8f9fa; }
+        
+        .match-yes { color: #1e8e3e; font-weight: bold; }
+        .match-no { color: #d93025; font-weight: bold; background-color: #fce8e6; }
+        .tag { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+        .tag-missing { background: #feebeb; color: #d93025; border: 1px solid #fad2d2; }
+        .tag-extra { background: #e6f4ea; color: #1e8e3e; border: 1px solid #ceead6; }
+        .logic-hint { font-size: 11px; color: #80868b; display: block; }
     </style>
 </head>
 <body>
 
 <div class="container">
+    <h1>API Response Comparison Tool</h1>
+    <p>Upload your SOAP and REST Excel files. The tool matches fields by value (excluding booleans/status) and matches booleans by normalized names.</p>
+
     <div class="upload-section">
-        <h2>SOAP Hierarchy Mapper</h2>
-        <p>Extracts structure and <b>values</b> into a clean Excel report.</p>
-        <label for="fileInput" class="upload-btn">Upload XML File</label>
-        <input type="file" id="fileInput" accept=".xml" onchange="processXML()">
-        <div id="status"></div>
+        <div class="input-group">
+            <label>SOAP XML Response (Excel)</label>
+            <input type="file" id="soapFile" accept=".xlsx, .xls">
+        </div>
+        <div class="input-group">
+            <label>REST JSON Response (Excel)</label>
+            <input type="file" id="restFile" accept=".xlsx, .xls">
+        </div>
     </div>
 
-    <div class="preview-container">
-        <h3>Cleaned Structure & Values Preview</h3>
-        <table id="previewTable"></table>
-    </div>
+    <button onclick="startAnalysis()">Run Analysis</button>
+
+    <div id="results"></div>
 </div>
 
 <script>
-    function processXML() {
-        const fileInput = document.getElementById('fileInput');
-        const status = document.getElementById('status');
-        const table = document.getElementById('previewTable');
-        const file = fileInput.files[0];
+    // Logic Configuration
+    const SPECIAL_VALUES = ['true', 'false', 'enabled'];
 
-        if (!file) return;
+    function normalize(name) {
+        if (!name) return "";
+        return name.toLowerCase()
+            .replace(/indicator/g, "ind")
+            .replace(/amount/g, "amt")
+            .replace(/[^a-z0-9]/g, "");
+    }
 
-        const reader = new FileReader();
-        status.innerHTML = "Processing...";
-        table.innerHTML = ""; 
+    function isSpecial(val) {
+        if (!val) return false;
+        return SPECIAL_VALUES.includes(String(val).trim().toLowerCase());
+    }
 
-        reader.onload = function(e) {
-            try {
-                const xmlText = e.target.result;
-                const parser = new DOMParser();
-                const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-
-                if (xmlDoc.getElementsByTagName("parsererror").length > 0) {
-                    throw new Error("Invalid XML file format.");
-                }
-
-                const rows = [];
-                let maxDepth = 0;
-
-                function traverse(node, depth) {
-                    if (node.nodeType === 1) { // Element Node
-                        if (depth > maxDepth) maxDepth = depth;
-                        
-                        // Get direct text content (if it's a leaf node)
-                        let value = "";
-                        if (node.childNodes.length === 1 && node.firstChild.nodeType === 3) {
-                            value = node.textContent.trim();
-                        }
-                        
-                        rows.push({
-                            depth: depth,
-                            name: node.localName,
-                            value: value
+    async function parseExcel(file) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const workbook = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+                const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+                const data = [];
+                rows.forEach(row => {
+                    const clean = row.filter(cell => cell !== null && cell !== "");
+                    if (clean.length >= 2) {
+                        data.push({ 
+                            name: String(clean[clean.length - 2]).trim(), 
+                            val: String(clean[clean.length - 1]).trim() 
                         });
-
-                        let child = node.firstChild;
-                        while (child) {
-                            traverse(child, depth + 1);
-                            child = child.nextSibling;
-                        }
                     }
+                });
+                resolve(data);
+            };
+            reader.readAsArrayBuffer(file);
+        });
+    }
+
+    async function startAnalysis() {
+        const sFile = document.getElementById('soapFile').files[0];
+        const rFile = document.getElementById('restFile').files[0];
+        if (!sFile || !rFile) return alert("Please upload both files.");
+
+        const soap = await parseExcel(sFile);
+        const rest = await parseExcel(rFile);
+
+        let matched = [];
+        let soapUsed = new Set();
+        let restUsed = new Set();
+
+        // PASS 1: Match by Value (Excluding Special Values)
+        soap.forEach((s, sIdx) => {
+            if (isSpecial(s.val)) return;
+            for (let rIdx = 0; rIdx < rest.length; rIdx++) {
+                const r = rest[rIdx];
+                if (!restUsed.has(rIdx) && !isSpecial(r.val) && s.val === r.val) {
+                    matched.push({ sName: s.name, rName: r.name, sVal: s.val, rVal: r.val, match: "Yes", logic: "Value Match" });
+                    soapUsed.add(sIdx);
+                    restUsed.add(rIdx);
+                    break;
                 }
-
-                traverse(xmlDoc.documentElement, 0);
-
-                // Prepare Data for Excel/Table (Structure columns + 1 Value column)
-                const finalData = rows.map(r => {
-                    let arr = new Array(maxDepth + 2).fill("");
-                    arr[r.depth] = r.name;
-                    arr[maxDepth + 1] = r.value; // Always place value in the last column
-                    return arr;
-                });
-
-                // 1. Generate Excel
-                const worksheet = XLSX.utils.aoa_to_sheet(finalData);
-                const workbook = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(workbook, worksheet, "XML Structure");
-                XLSX.writeFile(workbook, "xml_response_structure.xlsx");
-
-                // 2. Display Preview
-                // Create Header
-                let thead = "<thead><tr>";
-                for(let i=0; i<=maxDepth; i++) thead += `<th>Level ${i}</th>`;
-                thead += "<th>Value</th></tr></thead>";
-                table.innerHTML = thead;
-
-                const tbody = document.createElement('tbody');
-                finalData.forEach(rowData => {
-                    const tr = document.createElement('tr');
-                    rowData.forEach((cellData, index) => {
-                        const td = document.createElement('td');
-                        const isValueCol = (index === maxDepth + 1);
-                        
-                        if (cellData) {
-                            td.innerHTML = `<span class="${isValueCol ? 'value-text' : 'node-text'}">${cellData}</span>`;
-                        } else {
-                            td.className = "empty-cell";
-                        }
-                        tr.appendChild(td);
-                    });
-                    tbody.appendChild(tr);
-                });
-                table.appendChild(tbody);
-
-                status.innerHTML = "<span style='color:green;'>✅ Success! Processed " + rows.length + " nodes.</span>";
-            } catch (err) {
-                status.innerHTML = "<span style='color:red;'>Error: " + err.message + "</span>";
             }
-        };
+        });
 
-        reader.readAsText(file);
+        // PASS 2: Match by Normalized Name (Handles Ind/Indicator, Amt/Amount)
+        soap.forEach((s, sIdx) => {
+            if (soapUsed.has(sIdx)) return;
+            const sNorm = normalize(s.name);
+            for (let rIdx = 0; rIdx < rest.length; rIdx++) {
+                const r = rest[rIdx];
+                if (!restUsed.has(rIdx) && sNorm === normalize(r.name)) {
+                    const valMatch = s.val.toLowerCase() === r.val.toLowerCase() ? "Yes" : "No";
+                    matched.push({ sName: s.name, rName: r.name, sVal: s.val, rVal: r.val, match: valMatch, logic: "Name Similarity" });
+                    soapUsed.add(sIdx);
+                    restUsed.add(rIdx);
+                    break;
+                }
+            }
+        });
+
+        renderOutput(matched, soap, rest, soapUsed, restUsed);
+    }
+
+    function renderOutput(matched, soap, rest, soapUsed, restUsed) {
+        let html = `<h3>1. Matched Fields</h3>
+        <table>
+            <tr><th>SOAP Field</th><th>REST Field</th><th>SOAP Value</th><th>REST Value</th><th>Match</th><th>Logic</th></tr>`;
+        matched.forEach(m => {
+            html += `<tr>
+                <td>${m.sName}</td><td>${m.rName}</td>
+                <td>${m.sVal}</td><td>${m.rVal}</td>
+                <td class="match-${m.match.toLowerCase()}">${m.match}</td>
+                <td><span class="logic-hint">${m.logic}</span></td>
+            </tr>`;
+        });
+        html += `</table>`;
+
+        html += `<h3>2. Fields only in SOAP</h3>
+        <table><tr><th>SOAP Field</th><th>Value</th><th>Status</th></tr>`;
+        soap.forEach((s, i) => {
+            if (!soapUsed.has(i)) html += `<tr><td>${s.name}</td><td>${s.val}</td><td><span class="tag tag-missing">Missing in REST</span></td></tr>`;
+        });
+        html += `</table>`;
+
+        html += `<h3>3. Fields only in REST</h3>
+        <table><tr><th>REST Field</th><th>Value</th><th>Status</th></tr>`;
+        rest.forEach((r, i) => {
+            if (!restUsed.has(i)) html += `<tr><td>${r.name}</td><td>${r.val}</td><td><span class="tag tag-extra">Extra in REST</span></td></tr>`;
+        });
+        html += `</table>`;
+
+        document.getElementById('results').innerHTML = html;
     }
 </script>
-
 </body>
 </html>
