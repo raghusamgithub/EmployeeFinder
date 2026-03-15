@@ -2,21 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>JSON Hierarchy Mapper (Full Data)</title>
+    <title>XML Mapper - Multiple Records</title>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background-color: #f8f9fa; padding: 40px; color: #333; }
         .container { max-width: 1200px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .upload-section { text-align: center; border-bottom: 2px solid #eee; padding-bottom: 30px; margin-bottom: 30px; }
-        .upload-btn { background: #e67e22; color: white; padding: 12px 25px; border-radius: 6px; cursor: pointer; display: inline-block; font-weight: bold; }
+        .upload-btn { background: #007bff; color: white; padding: 12px 25px; border-radius: 6px; cursor: pointer; display: inline-block; font-weight: bold; }
         #fileInput { display: none; }
-        .preview-container { overflow-x: auto; margin-top: 20px; max-height: 600px; }
+        .preview-container { overflow-x: auto; margin-top: 20px; max-height: 500px; border: 1px solid #ddd; }
         table { border-collapse: collapse; width: 100%; font-size: 13px; font-family: 'Courier New', Courier, monospace; }
-        td { border: 1px solid #dee2e6; padding: 8px 15px; min-width: 120px; white-space: nowrap; }
-        th { background: #f1f1f1; padding: 10px; border: 1px solid #dee2e6; text-align: left; position: sticky; top: 0; }
-        .node-text { font-weight: 600; color: #d35400; }
-        .index-text { color: #7f8c8d; font-weight: bold; }
-        .value-text { color: #2980b9; font-style: italic; }
+        th { background: #e9ecef; text-align: left; padding: 10px; border: 1px solid #dee2e6; position: sticky; top: 0; }
+        td { border: 1px solid #dee2e6; padding: 6px 12px; min-width: 120px; }
+        .node-text { font-weight: 600; color: #0056b3; }
+        .value-text { color: #28a745; font-weight: bold; }
+        .index-text { color: #e67e22; font-size: 11px; margin-left: 4px; }
         .empty-cell { background-color: #ffffff; }
         #status { margin-top: 15px; font-weight: bold; }
     </style>
@@ -25,21 +25,20 @@
 
 <div class="container">
     <div class="upload-section">
-        <h2>JSON Full Data Mapper</h2>
-        <p>Upload a JSON file. This version iterates through <b>all array items</b> (e.g., every account).</p>
-        <label for="fileInput" class="upload-btn">Upload JSON File</label>
-        <input type="file" id="fileInput" accept=".json" onchange="processJSON()">
+        <h2>SOAP/XML Multi-Record Mapper</h2>
+        <p>This version identifies repeating elements and captures <b>all records</b>.</p>
+        <label for="fileInput" class="upload-btn">Upload XML File</label>
+        <input type="file" id="fileInput" accept=".xml" onchange="processXML()">
         <div id="status"></div>
     </div>
 
     <div class="preview-container">
-        <h3>Preview (All Records)</h3>
         <table id="previewTable"></table>
     </div>
 </div>
 
 <script>
-    function processJSON() {
+    function processXML() {
         const fileInput = document.getElementById('fileInput');
         const status = document.getElementById('status');
         const table = document.getElementById('previewTable');
@@ -53,98 +52,94 @@
 
         reader.onload = function(e) {
             try {
-                const jsonData = JSON.parse(e.target.result);
+                const xmlText = e.target.result;
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+
+                if (xmlDoc.getElementsByTagName("parsererror").length > 0) {
+                    throw new Error("Invalid XML file format.");
+                }
+
                 const rows = [];
                 let maxDepth = 0;
 
-                function traverse(data, depth) {
-                    if (depth > maxDepth) maxDepth = depth;
+                function traverse(node, depth) {
+                    if (node.nodeType === 1) { // Element Node
+                        if (depth > maxDepth) maxDepth = depth;
+                        
+                        // Check if this node has siblings with the same name (is part of a list)
+                        const siblings = Array.from(node.parentNode ? node.parentNode.children : []);
+                        const sameNameSiblings = siblings.filter(s => s.localName === node.localName);
+                        let displayName = node.localName;
+                        
+                        if (sameNameSiblings.length > 1) {
+                            const index = sameNameSiblings.indexOf(node) + 1;
+                            displayName += ` [${index}]`; // Mark record index
+                        }
 
-                    if (Array.isArray(data)) {
-                        // FIX: Iterate through every single element in the array
-                        data.forEach((item, index) => {
-                            rows.push({
-                                depth: depth,
-                                key: `Item [${index}]`,
-                                value: "",
-                                isIndex: true
-                            });
-                            traverse(item, depth + 1);
+                        // Determine value: only if it's a leaf node with text
+                        let value = "";
+                        const children = Array.from(node.childNodes);
+                        const hasNoElementChildren = !children.some(c => c.nodeType === 1);
+                        
+                        if (hasNoElementChildren && node.textContent.trim() !== "") {
+                            value = node.textContent.trim();
+                        }
+                        
+                        rows.push({
+                            depth: depth,
+                            name: displayName,
+                            value: value
                         });
-                    } else if (typeof data === 'object' && data !== null) {
-                        Object.keys(data).forEach(key => {
-                            const val = data[key];
-                            const isObject = typeof val === 'object' && val !== null;
-                            
-                            rows.push({
-                                depth: depth,
-                                key: key,
-                                value: isObject ? "" : String(val),
-                                isIndex: false
-                            });
 
-                            if (isObject) {
-                                traverse(val, depth + 1);
-                            }
-                        });
+                        // Recurse to children
+                        for (let child of node.children) {
+                            traverse(child, depth + 1);
+                        }
                     }
                 }
 
-                traverse(jsonData, 0);
+                traverse(xmlDoc.documentElement, 0);
 
                 // Prepare Data for Excel
-                const excelData = rows.map(r => {
-                    let arr = new Array(maxDepth + 2).fill(""); 
-                    arr[r.depth] = r.key;
-                    arr[maxDepth + 1] = r.value; 
+                const finalData = rows.map(r => {
+                    let arr = new Array(maxDepth + 2).fill("");
+                    arr[r.depth] = r.name;
+                    arr[maxDepth + 1] = r.value;
                     return arr;
                 });
 
                 // 1. Generate Excel
-                const worksheet = XLSX.utils.aoa_to_sheet(excelData);
+                const worksheet = XLSX.utils.aoa_to_sheet(finalData);
                 const workbook = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(workbook, worksheet, "Full JSON Data");
-                XLSX.writeFile(workbook, "full_response_data.xlsx");
+                XLSX.utils.book_append_sheet(workbook, worksheet, "XML Full Data");
+                XLSX.writeFile(workbook, "xml_full_records.xlsx");
 
-                // 2. Display Preview Table
-                let header = "<thead><tr>";
-                for(let i=0; i<=maxDepth; i++) header += `<th>Level ${i}</th>`;
-                header += "<th>Value</th></tr></thead><tbody id='tableBody'></tbody>";
-                table.innerHTML = header;
+                // 2. Display Preview
+                let thead = "<thead><tr>";
+                for(let i=0; i<=maxDepth; i++) thead += `<th>Level ${i}</th>`;
+                thead += "<th>Value</th></tr></thead>";
+                table.innerHTML = thead;
 
-                const tableBody = document.getElementById('tableBody');
-                
-                // Note: If JSON is massive, we only preview first 500 rows to prevent browser crash
-                const previewLimit = Math.min(rows.length, 500);
-                
-                for(let i=0; i < previewLimit; i++) {
-                    const r = rows[i];
+                const tbody = document.createElement('tbody');
+                // Preview limited to 300 rows for speed
+                finalData.slice(0, 300).forEach(rowData => {
                     const tr = document.createElement('tr');
-                    
-                    for(let j=0; j <= maxDepth + 1; j++) {
+                    rowData.forEach((cellData, index) => {
                         const td = document.createElement('td');
-                        if (j === r.depth) {
-                            const className = r.isIndex ? 'index-text' : 'node-text';
-                            td.innerHTML = `<span class="${className}">${r.key}</span>`;
-                        } else if (j === maxDepth + 1 && r.value !== "") {
-                            td.innerHTML = `<span class="value-text">${r.value}</span>`;
-                        } else {
-                            td.className = "empty-cell";
+                        const isValueCol = (index === maxDepth + 1);
+                        if (cellData) {
+                            td.innerHTML = `<span class="${isValueCol ? 'value-text' : 'node-text'}">${cellData}</span>`;
                         }
                         tr.appendChild(td);
-                    }
-                    tableBody.appendChild(tr);
-                }
+                    });
+                    tbody.appendChild(tr);
+                });
+                table.appendChild(tbody);
 
-                if(rows.length > 500) {
-                    status.innerHTML = `<span style='color:green;'>✅ Success! Excel contains all ${rows.length} rows. (Preview limited to 500).</span>`;
-                } else {
-                    status.innerHTML = "<span style='color:green;'>✅ Success! All data processed.</span>";
-                }
-
+                status.innerHTML = `<span style='color:green;'>✅ Success! Processed all records. Excel downloaded.</span>`;
             } catch (err) {
-                console.error(err);
-                status.innerHTML = "<span style='color:red;'>Error: " + err.message + "</span>";
+                status.innerHTML = `<span style='color:red;'>Error: ${err.message}</span>`;
             }
         };
 
