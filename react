@@ -2,19 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Clean XML Mapper (No Prefixes)</title>
+    <title>JSON Hierarchy Mapper</title>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background-color: #f8f9fa; padding: 40px; color: #333; }
         .container { max-width: 1100px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .upload-section { text-align: center; border-bottom: 2px solid #eee; padding-bottom: 30px; margin-bottom: 30px; }
-        .upload-btn { background: #007bff; color: white; padding: 12px 25px; border-radius: 6px; cursor: pointer; display: inline-block; font-weight: bold; }
+        .upload-btn { background: #e67e22; color: white; padding: 12px 25px; border-radius: 6px; cursor: pointer; display: inline-block; font-weight: bold; }
         #fileInput { display: none; }
         
         .preview-container { overflow-x: auto; margin-top: 20px; }
         table { border-collapse: collapse; width: auto; font-size: 13px; font-family: 'Courier New', Courier, monospace; }
         td { border: 1px solid #dee2e6; padding: 8px 15px; min-width: 150px; }
-        .node-text { font-weight: 600; color: #0056b3; }
+        .node-text { font-weight: 600; color: #d35400; }
         .empty-cell { background-color: #ffffff; }
         #status { margin-top: 15px; font-weight: bold; }
     </style>
@@ -23,21 +23,21 @@
 
 <div class="container">
     <div class="upload-section">
-        <h2>SOAP Hierarchy Mapper</h2>
-        <p>This tool removes prefixes (e.g., <b>v14:</b>) to show only the element names.</p>
-        <label for="fileInput" class="upload-btn">Upload XML File</label>
-        <input type="file" id="fileInput" accept=".xml" onchange="processXML()">
+        <h2>JSON Structure Mapper</h2>
+        <p>Upload a JSON file to generate a hierarchical <b>response_structure.xlsx</b></p>
+        <label for="fileInput" class="upload-btn">Upload JSON File</label>
+        <input type="file" id="fileInput" accept=".json" onchange="processJSON()">
         <div id="status"></div>
     </div>
 
     <div class="preview-container">
-        <h3>Cleaned Structure Preview</h3>
+        <h3>JSON Key Hierarchy Preview</h3>
         <table id="previewTable"></table>
     </div>
 </div>
 
 <script>
-    function processXML() {
+    function processJSON() {
         const fileInput = document.getElementById('fileInput');
         const status = document.getElementById('status');
         const table = document.getElementById('previewTable');
@@ -51,42 +51,45 @@
 
         reader.onload = function(e) {
             try {
-                const xmlText = e.target.result;
-                const parser = new DOMParser();
-                const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-
-                if (xmlDoc.getElementsByTagName("parsererror").length > 0) {
-                    throw new Error("Invalid XML file format.");
-                }
-
+                const jsonData = JSON.parse(e.target.result);
                 const rows = [];
                 let maxDepth = 0;
 
-                function traverse(node, depth) {
-                    if (node.nodeType === 1) {
-                        if (depth > maxDepth) maxDepth = depth;
-                        
-                        let row = new Array(depth + 1).fill("");
-                        
-                        // Use localName to ignore prefixes like v14: or soapenv:
-                        row[depth] = node.localName; 
-                        
-                        rows.push(row);
+                /**
+                 * Recursive function to crawl JSON keys
+                 * @param {Object|Array} data - Current level of JSON
+                 * @param {number} depth - Current column index
+                 */
+                function traverse(data, depth) {
+                    if (depth > maxDepth) maxDepth = depth;
 
-                        let child = node.firstChild;
-                        while (child) {
-                            traverse(child, depth + 1);
-                            child = child.nextSibling;
+                    if (Array.isArray(data)) {
+                        // For arrays, we usually want to show the structure of the first item
+                        if (data.length > 0) {
+                            traverse(data[0], depth);
                         }
+                    } else if (typeof data === 'object' && data !== null) {
+                        Object.keys(data).forEach(key => {
+                            // Rule 1 & 2: Set key at specific column index
+                            let row = new Array(depth + 1).fill("");
+                            row[depth] = key;
+                            rows.push(row);
+
+                            // Rule 4: Support multiple nested levels
+                            if (typeof data[key] === 'object' && data[key] !== null) {
+                                traverse(data[key], depth + 1);
+                            }
+                        });
                     }
                 }
 
-                traverse(xmlDoc.documentElement, 0);
+                // Start traversal
+                traverse(jsonData, 0);
 
                 // 1. Generate Excel
                 const worksheet = XLSX.utils.aoa_to_sheet(rows);
                 const workbook = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(workbook, worksheet, "Clean Structure");
+                XLSX.utils.book_append_sheet(workbook, worksheet, "JSON Structure");
                 XLSX.writeFile(workbook, "response_structure.xlsx");
 
                 // 2. Display Preview
@@ -104,7 +107,7 @@
                     table.appendChild(tr);
                 });
 
-                status.innerHTML = "<span style='color:green;'>✅ Processed! Prefixes removed and file downloaded.</span>";
+                status.innerHTML = "<span style='color:green;'>✅ Success! JSON hierarchy mapped to Excel.</span>";
             } catch (err) {
                 status.innerHTML = "<span style='color:red;'>Error: " + err.message + "</span>";
             }
