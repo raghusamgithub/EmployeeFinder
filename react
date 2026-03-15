@@ -2,150 +2,220 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>XML Mapper - Multiple Records</title>
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Response Mapper - Multi-Account Support</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f8f9fa; padding: 40px; color: #333; }
-        .container { max-width: 1200px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .upload-section { text-align: center; border-bottom: 2px solid #eee; padding-bottom: 30px; margin-bottom: 30px; }
-        .upload-btn { background: #007bff; color: white; padding: 12px 25px; border-radius: 6px; cursor: pointer; display: inline-block; font-weight: bold; }
-        #fileInput { display: none; }
-        .preview-container { overflow-x: auto; margin-top: 20px; max-height: 500px; border: 1px solid #ddd; }
-        table { border-collapse: collapse; width: 100%; font-size: 13px; font-family: 'Courier New', Courier, monospace; }
-        th { background: #e9ecef; text-align: left; padding: 10px; border: 1px solid #dee2e6; position: sticky; top: 0; }
-        td { border: 1px solid #dee2e6; padding: 6px 12px; min-width: 120px; }
-        .node-text { font-weight: 600; color: #0056b3; }
-        .value-text { color: #28a745; font-weight: bold; }
-        .index-text { color: #e67e22; font-size: 11px; margin-left: 4px; }
-        .empty-cell { background-color: #ffffff; }
-        #status { margin-top: 15px; font-weight: bold; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 40px; background-color: #f0f2f5; color: #333; }
+        .container { max-width: 1200px; margin: auto; background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); }
+        h1 { color: #1a73e8; border-bottom: 3px solid #1a73e8; padding-bottom: 10px; margin-bottom: 30px; }
+        .upload-section { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; padding: 25px; background: #f8f9fa; border: 1px dashed #ced4da; border-radius: 8px; }
+        .input-group { display: flex; flex-direction: column; gap: 8px; }
+        label { font-weight: bold; color: #495057; }
+        input[type="file"] { padding: 10px; background: white; border: 1px solid #ddd; border-radius: 4px; }
+        button { background-color: #1a73e8; color: white; border: none; padding: 15px 30px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: 600; width: 100%; transition: 0.2s; }
+        button:hover { background-color: #1557b0; }
+        
+        .account-section { margin-top: 50px; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; background: #fff; }
+        .account-header { color: #1a73e8; border-bottom: 2px solid #1a73e8; padding-bottom: 10px; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        h3 { margin-top: 30px; color: #202124; border-left: 5px solid #1a73e8; padding-left: 15px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 30px; background: white; font-size: 14px; }
+        th, td { border: 1px solid #e0e0e0; padding: 10px 12px; text-align: left; }
+        th { background-color: #f1f3f4; color: #5f6368; font-weight: 600; text-transform: uppercase; font-size: 11px; }
+        tr:hover { background-color: #f8f9fa; }
+        
+        .match-yes { color: #1e8e3e; font-weight: bold; }
+        .match-no { color: #d93025; font-weight: bold; background-color: #fce8e6; }
+        .tag { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+        .tag-missing { background: #feebeb; color: #d93025; border: 1px solid #fad2d2; }
+        .tag-extra { background: #e6f4ea; color: #1e8e3e; border: 1px solid #ceead6; }
+        .logic-hint { font-size: 11px; color: #80868b; display: block; }
+        .grid-split { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     </style>
 </head>
 <body>
 
 <div class="container">
+    <h1>API Response Comparison Tool</h1>
+    <p>Upload SOAP and REST Excel files. The tool detects repeating <strong>AccountDetails</strong> arrays and separates them into distinct result sets.</p>
+
     <div class="upload-section">
-        <h2>SOAP/XML Multi-Record Mapper</h2>
-        <p>This version identifies repeating elements and captures <b>all records</b>.</p>
-        <label for="fileInput" class="upload-btn">Upload XML File</label>
-        <input type="file" id="fileInput" accept=".xml" onchange="processXML()">
-        <div id="status"></div>
+        <div class="input-group">
+            <label>SOAP XML Response (Excel)</label>
+            <input type="file" id="soapFile" accept=".xlsx, .xls">
+        </div>
+        <div class="input-group">
+            <label>REST JSON Response (Excel)</label>
+            <input type="file" id="restFile" accept=".xlsx, .xls">
+        </div>
     </div>
 
-    <div class="preview-container">
-        <table id="previewTable"></table>
-    </div>
+    <button onclick="startAnalysis()">Run Multi-Account Analysis</button>
+
+    <div id="results"></div>
 </div>
 
 <script>
-    function processXML() {
-        const fileInput = document.getElementById('fileInput');
-        const status = document.getElementById('status');
-        const table = document.getElementById('previewTable');
-        const file = fileInput.files[0];
+    const SPECIAL_VALUES = ['true', 'false', 'enabled'];
 
-        if (!file) return;
+    function normalize(name) {
+        if (!name) return "";
+        return name.toLowerCase()
+            .replace(/indicator/g, "ind")
+            .replace(/amount/g, "amt")
+            .replace(/[^a-z0-9]/g, "");
+    }
 
-        const reader = new FileReader();
-        status.innerHTML = "Processing all records...";
-        table.innerHTML = ""; 
+    function isSpecial(val) {
+        if (!val) return false;
+        return SPECIAL_VALUES.includes(String(val).trim().toLowerCase());
+    }
 
-        reader.onload = function(e) {
-            try {
-                const xmlText = e.target.result;
-                const parser = new DOMParser();
-                const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+    async function parseExcel(file) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const workbook = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+                const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+                
+                const data = [];
+                let currentObjectIndex = 1;
+                let seenFieldsInCurrentBlock = new Set();
 
-                if (xmlDoc.getElementsByTagName("parsererror").length > 0) {
-                    throw new Error("Invalid XML file format.");
-                }
+                rows.forEach(row => {
+                    const clean = row.filter(cell => cell !== null && cell !== "");
+                    if (clean.length >= 2) {
+                        let fieldName = String(clean[clean.length - 2]).trim();
+                        let fieldValue = String(clean[clean.length - 1]).trim();
 
-                const rows = [];
-                let maxDepth = 0;
-
-                function traverse(node, depth) {
-                    if (node.nodeType === 1) { // Element Node
-                        if (depth > maxDepth) maxDepth = depth;
-                        
-                        // Check if this node has siblings with the same name (is part of a list)
-                        const siblings = Array.from(node.parentNode ? node.parentNode.children : []);
-                        const sameNameSiblings = siblings.filter(s => s.localName === node.localName);
-                        let displayName = node.localName;
-                        
-                        if (sameNameSiblings.length > 1) {
-                            const index = sameNameSiblings.indexOf(node) + 1;
-                            displayName += ` [${index}]`; // Mark record index
+                        // Detection Logic: If we see a field name we already saw in this block, 
+                        // it marks the start of a new account object.
+                        if (seenFieldsInCurrentBlock.has(fieldName)) {
+                            currentObjectIndex++;
+                            seenFieldsInCurrentBlock.clear();
                         }
+                        seenFieldsInCurrentBlock.add(fieldName);
 
-                        // Determine value: only if it's a leaf node with text
-                        let value = "";
-                        const children = Array.from(node.childNodes);
-                        const hasNoElementChildren = !children.some(c => c.nodeType === 1);
-                        
-                        if (hasNoElementChildren && node.textContent.trim() !== "") {
-                            value = node.textContent.trim();
-                        }
-                        
-                        rows.push({
-                            depth: depth,
-                            name: displayName,
-                            value: value
+                        data.push({ 
+                            name: fieldName, 
+                            val: fieldValue,
+                            objIndex: currentObjectIndex 
                         });
-
-                        // Recurse to children
-                        for (let child of node.children) {
-                            traverse(child, depth + 1);
-                        }
                     }
-                }
-
-                traverse(xmlDoc.documentElement, 0);
-
-                // Prepare Data for Excel
-                const finalData = rows.map(r => {
-                    let arr = new Array(maxDepth + 2).fill("");
-                    arr[r.depth] = r.name;
-                    arr[maxDepth + 1] = r.value;
-                    return arr;
                 });
+                resolve(data);
+            };
+            reader.readAsArrayBuffer(file);
+        });
+    }
 
-                // 1. Generate Excel
-                const worksheet = XLSX.utils.aoa_to_sheet(finalData);
-                const workbook = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(workbook, worksheet, "XML Full Data");
-                XLSX.writeFile(workbook, "xml_full_records.xlsx");
+    async function startAnalysis() {
+        const sFile = document.getElementById('soapFile').files[0];
+        const rFile = document.getElementById('restFile').files[0];
+        if (!sFile || !rFile) return alert("Please upload both files.");
 
-                // 2. Display Preview
-                let thead = "<thead><tr>";
-                for(let i=0; i<=maxDepth; i++) thead += `<th>Level ${i}</th>`;
-                thead += "<th>Value</th></tr></thead>";
-                table.innerHTML = thead;
+        const soap = await parseExcel(sFile);
+        const rest = await parseExcel(rFile);
 
-                const tbody = document.createElement('tbody');
-                // Preview limited to 300 rows for speed
-                finalData.slice(0, 300).forEach(rowData => {
-                    const tr = document.createElement('tr');
-                    rowData.forEach((cellData, index) => {
-                        const td = document.createElement('td');
-                        const isValueCol = (index === maxDepth + 1);
-                        if (cellData) {
-                            td.innerHTML = `<span class="${isValueCol ? 'value-text' : 'node-text'}">${cellData}</span>`;
-                        }
-                        tr.appendChild(td);
-                    });
-                    tbody.appendChild(tr);
-                });
-                table.appendChild(tbody);
+        const resultsContainer = document.getElementById('results');
+        resultsContainer.innerHTML = ""; 
 
-                status.innerHTML = `<span style='color:green;'>✅ Success! Processed all records. Excel downloaded.</span>`;
-            } catch (err) {
-                status.innerHTML = `<span style='color:red;'>Error: ${err.message}</span>`;
+        const maxIndex = Math.max(
+            ...soap.map(d => d.objIndex), 
+            ...rest.map(d => d.objIndex)
+        );
+
+        for (let i = 1; i <= maxIndex; i++) {
+            const soapBlock = soap.filter(d => d.objIndex === i);
+            const restBlock = rest.filter(d => d.objIndex === i);
+            
+            if (soapBlock.length > 0 || restBlock.length > 0) {
+                const comparison = compareBlocks(soapBlock, restBlock);
+                renderAccountSection(i, comparison, resultsContainer);
             }
-        };
+        }
+    }
 
-        reader.readAsText(file);
+    function compareBlocks(soapBlock, restBlock) {
+        let matched = [];
+        let soapUsed = new Set();
+        let restUsed = new Set();
+
+        // Pass 1: Match by Value
+        soapBlock.forEach((s, sIdx) => {
+            if (isSpecial(s.val)) return;
+            for (let rIdx = 0; rIdx < restBlock.length; rIdx++) {
+                const r = restBlock[rIdx];
+                if (!restUsed.has(rIdx) && !isSpecial(r.val) && s.val === r.val) {
+                    matched.push({ sName: s.name, rName: r.name, sVal: s.val, rVal: r.val, match: "Yes", logic: "Value Match" });
+                    soapUsed.add(sIdx);
+                    restUsed.add(rIdx);
+                    break;
+                }
+            }
+        });
+
+        // Pass 2: Match by Name Similarity
+        soapBlock.forEach((s, sIdx) => {
+            if (soapUsed.has(sIdx)) return;
+            const sNorm = normalize(s.name);
+            for (let rIdx = 0; rIdx < restBlock.length; rIdx++) {
+                const r = restBlock[rIdx];
+                if (!restUsed.has(rIdx) && sNorm === normalize(r.name)) {
+                    const valMatch = s.val.toLowerCase() === r.val.toLowerCase() ? "Yes" : "No";
+                    matched.push({ sName: s.name, rName: r.name, sVal: s.val, rVal: r.val, match: valMatch, logic: "Name Similarity" });
+                    soapUsed.add(sIdx);
+                    restUsed.add(rIdx);
+                    break;
+                }
+            }
+        });
+
+        return { matched, soapBlock, restBlock, soapUsed, restUsed };
+    }
+
+    function renderAccountSection(index, data, container) {
+        const section = document.createElement('div');
+        section.className = "account-section";
+        
+        let matchedRows = data.matched.map(m => `
+            <tr>
+                <td>${m.sName}</td><td>${m.rName}</td>
+                <td>${m.sVal}</td><td>${m.rVal}</td>
+                <td class="match-${m.match.toLowerCase()}">${m.match}</td>
+                <td><span class="logic-hint">${m.logic}</span></td>
+            </tr>
+        `).join('');
+
+        let missingRows = data.soapBlock.filter((_, i) => !data.soapUsed.has(i)).map(s => `
+            <tr><td>${s.name}</td><td>${s.val}</td><td><span class="tag tag-missing">Missing in REST</span></td></tr>
+        `).join('');
+
+        let extraRows = data.restBlock.filter((_, i) => !data.restUsed.has(i)).map(r => `
+            <tr><td>${r.name}</td><td>${r.val}</td><td><span class="tag tag-extra">Extra in REST</span></td></tr>
+        `).join('');
+
+        section.innerHTML = `
+            <div class="account-header">Account / Object Set #${index}</div>
+            
+            <h3>1. Matched Fields</h3>
+            ${matchedRows ? `<table><tr><th>SOAP Field</th><th>REST Field</th><th>SOAP Value</th><th>REST Value</th><th>Match</th><th>Logic</th></tr>${matchedRows}</table>` : '<p>No matches found in this set.</p>'}
+
+            <div class="grid-split">
+                <div>
+                    <h3>2. Only in SOAP</h3>
+                    ${missingRows ? `<table><tr><th>Field</th><th>Value</th><th>Status</th></tr>${missingRows}</table>` : '<p>No unique SOAP fields.</p>'}
+                </div>
+                <div>
+                    <h3>3. Only in REST</h3>
+                    ${extraRows ? `<table><tr><th>Field</th><th>Value</th><th>Status</th></tr>${extraRows}</table>` : '<p>No extra REST fields.</p>'}
+                </div>
+            </div>
+        `;
+        container.appendChild(section);
     }
 </script>
-
 </body>
 </html>
