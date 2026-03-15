@@ -6,15 +6,17 @@
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background-color: #f8f9fa; padding: 40px; color: #333; }
-        .container { max-width: 1100px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .container { max-width: 1200px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .upload-section { text-align: center; border-bottom: 2px solid #eee; padding-bottom: 30px; margin-bottom: 30px; }
         .upload-btn { background: #e67e22; color: white; padding: 12px 25px; border-radius: 6px; cursor: pointer; display: inline-block; font-weight: bold; }
         #fileInput { display: none; }
         
         .preview-container { overflow-x: auto; margin-top: 20px; }
-        table { border-collapse: collapse; width: auto; font-size: 13px; font-family: 'Courier New', Courier, monospace; }
-        td { border: 1px solid #dee2e6; padding: 8px 15px; min-width: 150px; }
+        table { border-collapse: collapse; width: 100%; font-size: 13px; font-family: 'Courier New', Courier, monospace; }
+        td { border: 1px solid #dee2e6; padding: 8px 15px; min-width: 120px; }
+        th { background: #f1f1f1; padding: 10px; border: 1px solid #dee2e6; text-align: left; }
         .node-text { font-weight: 600; color: #d35400; }
+        .value-text { color: #2980b9; font-style: italic; }
         .empty-cell { background-color: #ffffff; }
         #status { margin-top: 15px; font-weight: bold; }
     </style>
@@ -24,14 +26,14 @@
 <div class="container">
     <div class="upload-section">
         <h2>JSON Structure Mapper</h2>
-        <p>Upload a JSON file to generate a hierarchical <b>response_structure.xlsx</b></p>
+        <p>Upload a JSON file to generate a hierarchical <b>response_structure.xlsx</b> with values.</p>
         <label for="fileInput" class="upload-btn">Upload JSON File</label>
         <input type="file" id="fileInput" accept=".json" onchange="processJSON()">
         <div id="status"></div>
     </div>
 
     <div class="preview-container">
-        <h3>JSON Key Hierarchy Preview</h3>
+        <h3>JSON Key & Value Preview</h3>
         <table id="previewTable"></table>
     </div>
 </div>
@@ -55,60 +57,76 @@
                 const rows = [];
                 let maxDepth = 0;
 
-                /**
-                 * Recursive function to crawl JSON keys
-                 * @param {Object|Array} data - Current level of JSON
-                 * @param {number} depth - Current column index
-                 */
                 function traverse(data, depth) {
                     if (depth > maxDepth) maxDepth = depth;
 
                     if (Array.isArray(data)) {
-                        // For arrays, we usually want to show the structure of the first item
                         if (data.length > 0) {
                             traverse(data[0], depth);
                         }
                     } else if (typeof data === 'object' && data !== null) {
                         Object.keys(data).forEach(key => {
-                            // Rule 1 & 2: Set key at specific column index
-                            let row = new Array(depth + 1).fill("");
-                            row[depth] = key;
+                            const val = data[key];
+                            const isObject = typeof val === 'object' && val !== null;
+                            
+                            // Create row: [Empty, Empty, Key, ... , Value]
+                            let row = {
+                                depth: depth,
+                                key: key,
+                                // Only show value if it's not a nested object/array
+                                value: isObject ? "" : String(val) 
+                            };
                             rows.push(row);
 
-                            // Rule 4: Support multiple nested levels
-                            if (typeof data[key] === 'object' && data[key] !== null) {
-                                traverse(data[key], depth + 1);
+                            if (isObject) {
+                                traverse(val, depth + 1);
                             }
                         });
                     }
                 }
 
-                // Start traversal
                 traverse(jsonData, 0);
 
+                // Prepare Data for Excel (Key columns + 1 Value column)
+                const excelData = rows.map(r => {
+                    let arr = new Array(maxDepth + 2).fill(""); 
+                    arr[r.depth] = r.key;
+                    arr[maxDepth + 1] = r.value; // Place value in the final column
+                    return arr;
+                });
+
                 // 1. Generate Excel
-                const worksheet = XLSX.utils.aoa_to_sheet(rows);
+                const worksheet = XLSX.utils.aoa_to_sheet(excelData);
                 const workbook = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(workbook, worksheet, "JSON Structure");
                 XLSX.writeFile(workbook, "response_structure.xlsx");
 
-                // 2. Display Preview
-                rows.forEach(rowData => {
+                // 2. Display Preview Table
+                // Create Header
+                let header = "<tr>";
+                for(let i=0; i<=maxDepth; i++) header += `<th>Level ${i}</th>`;
+                header += "<th>Value</th></tr>";
+                table.innerHTML = header;
+
+                excelData.forEach(rowData => {
                     const tr = document.createElement('tr');
-                    for (let i = 0; i <= maxDepth; i++) {
+                    rowData.forEach((cellData, index) => {
                         const td = document.createElement('td');
-                        if (rowData[i]) {
-                            td.innerHTML = `<span class="node-text">${rowData[i]}</span>`;
+                        if (cellData) {
+                            // Style the last column (Value) differently
+                            const isValueCol = index === maxDepth + 1;
+                            td.innerHTML = `<span class="${isValueCol ? 'value-text' : 'node-text'}">${cellData}</span>`;
                         } else {
                             td.className = "empty-cell";
                         }
                         tr.appendChild(td);
-                    }
+                    });
                     table.appendChild(tr);
                 });
 
-                status.innerHTML = "<span style='color:green;'>✅ Success! JSON hierarchy mapped to Excel.</span>";
+                status.innerHTML = "<span style='color:green;'>✅ Success! Excel downloaded with values.</span>";
             } catch (err) {
+                console.error(err);
                 status.innerHTML = "<span style='color:red;'>Error: " + err.message + "</span>";
             }
         };
