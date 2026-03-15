@@ -2,171 +2,155 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Response Mapper - Enhanced Logic</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <title>JSON Hierarchy Mapper (Full Data)</title>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 40px; background-color: #f0f2f5; color: #333; }
-        .container { max-width: 1200px; margin: auto; background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); }
-        h1 { color: #1a73e8; border-bottom: 3px solid #1a73e8; padding-bottom: 10px; margin-bottom: 30px; }
-        .upload-section { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; padding: 25px; background: #f8f9fa; border: 1px dashed #ced4da; border-radius: 8px; }
-        .input-group { display: flex; flex-direction: column; gap: 8px; }
-        label { font-weight: bold; color: #495057; }
-        input[type="file"] { padding: 10px; background: white; border: 1px solid #ddd; border-radius: 4px; }
-        button { background-color: #1a73e8; color: white; border: none; padding: 15px 30px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: 600; width: 100%; transition: 0.2s; }
-        button:hover { background-color: #1557b0; }
-        
-        h3 { margin-top: 50px; color: #202124; border-left: 5px solid #1a73e8; padding-left: 15px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 30px; background: white; }
-        th, td { border: 1px solid #e0e0e0; padding: 12px 15px; text-align: left; }
-        th { background-color: #f1f3f4; color: #5f6368; font-weight: 600; text-transform: uppercase; font-size: 12px; }
-        tr:hover { background-color: #f8f9fa; }
-        
-        .match-yes { color: #1e8e3e; font-weight: bold; }
-        .match-no { color: #d93025; font-weight: bold; background-color: #fce8e6; }
-        .tag { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
-        .tag-missing { background: #feebeb; color: #d93025; border: 1px solid #fad2d2; }
-        .tag-extra { background: #e6f4ea; color: #1e8e3e; border: 1px solid #ceead6; }
-        .logic-hint { font-size: 11px; color: #80868b; display: block; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f8f9fa; padding: 40px; color: #333; }
+        .container { max-width: 1200px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .upload-section { text-align: center; border-bottom: 2px solid #eee; padding-bottom: 30px; margin-bottom: 30px; }
+        .upload-btn { background: #e67e22; color: white; padding: 12px 25px; border-radius: 6px; cursor: pointer; display: inline-block; font-weight: bold; }
+        #fileInput { display: none; }
+        .preview-container { overflow-x: auto; margin-top: 20px; max-height: 600px; }
+        table { border-collapse: collapse; width: 100%; font-size: 13px; font-family: 'Courier New', Courier, monospace; }
+        td { border: 1px solid #dee2e6; padding: 8px 15px; min-width: 120px; white-space: nowrap; }
+        th { background: #f1f1f1; padding: 10px; border: 1px solid #dee2e6; text-align: left; position: sticky; top: 0; }
+        .node-text { font-weight: 600; color: #d35400; }
+        .index-text { color: #7f8c8d; font-weight: bold; }
+        .value-text { color: #2980b9; font-style: italic; }
+        .empty-cell { background-color: #ffffff; }
+        #status { margin-top: 15px; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>API Response Comparison Tool</h1>
-    <p>Upload your SOAP and REST Excel files. The tool matches fields by value (excluding booleans/status) and matches booleans by normalized names.</p>
-
     <div class="upload-section">
-        <div class="input-group">
-            <label>SOAP XML Response (Excel)</label>
-            <input type="file" id="soapFile" accept=".xlsx, .xls">
-        </div>
-        <div class="input-group">
-            <label>REST JSON Response (Excel)</label>
-            <input type="file" id="restFile" accept=".xlsx, .xls">
-        </div>
+        <h2>JSON Full Data Mapper</h2>
+        <p>Upload a JSON file. This version iterates through <b>all array items</b> (e.g., every account).</p>
+        <label for="fileInput" class="upload-btn">Upload JSON File</label>
+        <input type="file" id="fileInput" accept=".json" onchange="processJSON()">
+        <div id="status"></div>
     </div>
 
-    <button onclick="startAnalysis()">Run Analysis</button>
-
-    <div id="results"></div>
+    <div class="preview-container">
+        <h3>Preview (All Records)</h3>
+        <table id="previewTable"></table>
+    </div>
 </div>
 
 <script>
-    // Logic Configuration
-    const SPECIAL_VALUES = ['true', 'false', 'enabled'];
+    function processJSON() {
+        const fileInput = document.getElementById('fileInput');
+        const status = document.getElementById('status');
+        const table = document.getElementById('previewTable');
+        const file = fileInput.files[0];
 
-    function normalize(name) {
-        if (!name) return "";
-        return name.toLowerCase()
-            .replace(/indicator/g, "ind")
-            .replace(/amount/g, "amt")
-            .replace(/[^a-z0-9]/g, "");
-    }
+        if (!file) return;
 
-    function isSpecial(val) {
-        if (!val) return false;
-        return SPECIAL_VALUES.includes(String(val).trim().toLowerCase());
-    }
+        const reader = new FileReader();
+        status.innerHTML = "Processing all records...";
+        table.innerHTML = ""; 
 
-    async function parseExcel(file) {
-        return new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const workbook = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
-                const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-                const data = [];
-                rows.forEach(row => {
-                    const clean = row.filter(cell => cell !== null && cell !== "");
-                    if (clean.length >= 2) {
-                        data.push({ 
-                            name: String(clean[clean.length - 2]).trim(), 
-                            val: String(clean[clean.length - 1]).trim() 
+        reader.onload = function(e) {
+            try {
+                const jsonData = JSON.parse(e.target.result);
+                const rows = [];
+                let maxDepth = 0;
+
+                function traverse(data, depth) {
+                    if (depth > maxDepth) maxDepth = depth;
+
+                    if (Array.isArray(data)) {
+                        // FIX: Iterate through every single element in the array
+                        data.forEach((item, index) => {
+                            rows.push({
+                                depth: depth,
+                                key: `Item [${index}]`,
+                                value: "",
+                                isIndex: true
+                            });
+                            traverse(item, depth + 1);
+                        });
+                    } else if (typeof data === 'object' && data !== null) {
+                        Object.keys(data).forEach(key => {
+                            const val = data[key];
+                            const isObject = typeof val === 'object' && val !== null;
+                            
+                            rows.push({
+                                depth: depth,
+                                key: key,
+                                value: isObject ? "" : String(val),
+                                isIndex: false
+                            });
+
+                            if (isObject) {
+                                traverse(val, depth + 1);
+                            }
                         });
                     }
+                }
+
+                traverse(jsonData, 0);
+
+                // Prepare Data for Excel
+                const excelData = rows.map(r => {
+                    let arr = new Array(maxDepth + 2).fill(""); 
+                    arr[r.depth] = r.key;
+                    arr[maxDepth + 1] = r.value; 
+                    return arr;
                 });
-                resolve(data);
-            };
-            reader.readAsArrayBuffer(file);
-        });
-    }
 
-    async function startAnalysis() {
-        const sFile = document.getElementById('soapFile').files[0];
-        const rFile = document.getElementById('restFile').files[0];
-        if (!sFile || !rFile) return alert("Please upload both files.");
+                // 1. Generate Excel
+                const worksheet = XLSX.utils.aoa_to_sheet(excelData);
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, "Full JSON Data");
+                XLSX.writeFile(workbook, "full_response_data.xlsx");
 
-        const soap = await parseExcel(sFile);
-        const rest = await parseExcel(rFile);
+                // 2. Display Preview Table
+                let header = "<thead><tr>";
+                for(let i=0; i<=maxDepth; i++) header += `<th>Level ${i}</th>`;
+                header += "<th>Value</th></tr></thead><tbody id='tableBody'></tbody>";
+                table.innerHTML = header;
 
-        let matched = [];
-        let soapUsed = new Set();
-        let restUsed = new Set();
-
-        // PASS 1: Match by Value (Excluding Special Values)
-        soap.forEach((s, sIdx) => {
-            if (isSpecial(s.val)) return;
-            for (let rIdx = 0; rIdx < rest.length; rIdx++) {
-                const r = rest[rIdx];
-                if (!restUsed.has(rIdx) && !isSpecial(r.val) && s.val === r.val) {
-                    matched.push({ sName: s.name, rName: r.name, sVal: s.val, rVal: r.val, match: "Yes", logic: "Value Match" });
-                    soapUsed.add(sIdx);
-                    restUsed.add(rIdx);
-                    break;
+                const tableBody = document.getElementById('tableBody');
+                
+                // Note: If JSON is massive, we only preview first 500 rows to prevent browser crash
+                const previewLimit = Math.min(rows.length, 500);
+                
+                for(let i=0; i < previewLimit; i++) {
+                    const r = rows[i];
+                    const tr = document.createElement('tr');
+                    
+                    for(let j=0; j <= maxDepth + 1; j++) {
+                        const td = document.createElement('td');
+                        if (j === r.depth) {
+                            const className = r.isIndex ? 'index-text' : 'node-text';
+                            td.innerHTML = `<span class="${className}">${r.key}</span>`;
+                        } else if (j === maxDepth + 1 && r.value !== "") {
+                            td.innerHTML = `<span class="value-text">${r.value}</span>`;
+                        } else {
+                            td.className = "empty-cell";
+                        }
+                        tr.appendChild(td);
+                    }
+                    tableBody.appendChild(tr);
                 }
-            }
-        });
 
-        // PASS 2: Match by Normalized Name (Handles Ind/Indicator, Amt/Amount)
-        soap.forEach((s, sIdx) => {
-            if (soapUsed.has(sIdx)) return;
-            const sNorm = normalize(s.name);
-            for (let rIdx = 0; rIdx < rest.length; rIdx++) {
-                const r = rest[rIdx];
-                if (!restUsed.has(rIdx) && sNorm === normalize(r.name)) {
-                    const valMatch = s.val.toLowerCase() === r.val.toLowerCase() ? "Yes" : "No";
-                    matched.push({ sName: s.name, rName: r.name, sVal: s.val, rVal: r.val, match: valMatch, logic: "Name Similarity" });
-                    soapUsed.add(sIdx);
-                    restUsed.add(rIdx);
-                    break;
+                if(rows.length > 500) {
+                    status.innerHTML = `<span style='color:green;'>✅ Success! Excel contains all ${rows.length} rows. (Preview limited to 500).</span>`;
+                } else {
+                    status.innerHTML = "<span style='color:green;'>✅ Success! All data processed.</span>";
                 }
+
+            } catch (err) {
+                console.error(err);
+                status.innerHTML = "<span style='color:red;'>Error: " + err.message + "</span>";
             }
-        });
+        };
 
-        renderOutput(matched, soap, rest, soapUsed, restUsed);
-    }
-
-    function renderOutput(matched, soap, rest, soapUsed, restUsed) {
-        let html = `<h3>1. Matched Fields</h3>
-        <table>
-            <tr><th>SOAP Field</th><th>REST Field</th><th>SOAP Value</th><th>REST Value</th><th>Match</th><th>Logic</th></tr>`;
-        matched.forEach(m => {
-            html += `<tr>
-                <td>${m.sName}</td><td>${m.rName}</td>
-                <td>${m.sVal}</td><td>${m.rVal}</td>
-                <td class="match-${m.match.toLowerCase()}">${m.match}</td>
-                <td><span class="logic-hint">${m.logic}</span></td>
-            </tr>`;
-        });
-        html += `</table>`;
-
-        html += `<h3>2. Fields only in SOAP</h3>
-        <table><tr><th>SOAP Field</th><th>Value</th><th>Status</th></tr>`;
-        soap.forEach((s, i) => {
-            if (!soapUsed.has(i)) html += `<tr><td>${s.name}</td><td>${s.val}</td><td><span class="tag tag-missing">Missing in REST</span></td></tr>`;
-        });
-        html += `</table>`;
-
-        html += `<h3>3. Fields only in REST</h3>
-        <table><tr><th>REST Field</th><th>Value</th><th>Status</th></tr>`;
-        rest.forEach((r, i) => {
-            if (!restUsed.has(i)) html += `<tr><td>${r.name}</td><td>${r.val}</td><td><span class="tag tag-extra">Extra in REST</span></td></tr>`;
-        });
-        html += `</table>`;
-
-        document.getElementById('results').innerHTML = html;
+        reader.readAsText(file);
     }
 </script>
+
 </body>
 </html>
