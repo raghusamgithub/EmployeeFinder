@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Clean XML Mapper (No Prefixes)</title>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f8f9fa; padding: 40px; color: #333; }
+        .container { max-width: 1100px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .upload-section { text-align: center; border-bottom: 2px solid #eee; padding-bottom: 30px; margin-bottom: 30px; }
+        .upload-btn { background: #007bff; color: white; padding: 12px 25px; border-radius: 6px; cursor: pointer; display: inline-block; font-weight: bold; }
+        #fileInput { display: none; }
+        
+        .preview-container { overflow-x: auto; margin-top: 20px; }
+        table { border-collapse: collapse; width: auto; font-size: 13px; font-family: 'Courier New', Courier, monospace; }
+        td { border: 1px solid #dee2e6; padding: 8px 15px; min-width: 150px; }
+        .node-text { font-weight: 600; color: #0056b3; }
+        .empty-cell { background-color: #ffffff; }
+        #status { margin-top: 15px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="upload-section">
+        <h2>SOAP Hierarchy Mapper</h2>
+        <p>This tool removes prefixes (e.g., <b>v14:</b>) to show only the element names.</p>
+        <label for="fileInput" class="upload-btn">Upload XML File</label>
+        <input type="file" id="fileInput" accept=".xml" onchange="processXML()">
+        <div id="status"></div>
+    </div>
+
+    <div class="preview-container">
+        <h3>Cleaned Structure Preview</h3>
+        <table id="previewTable"></table>
+    </div>
+</div>
+
+<script>
+    function processXML() {
+        const fileInput = document.getElementById('fileInput');
+        const status = document.getElementById('status');
+        const table = document.getElementById('previewTable');
+        const file = fileInput.files[0];
+
+        if (!file) return;
+
+        const reader = new FileReader();
+        status.innerHTML = "Processing...";
+        table.innerHTML = ""; 
+
+        reader.onload = function(e) {
+            try {
+                const xmlText = e.target.result;
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+
+                if (xmlDoc.getElementsByTagName("parsererror").length > 0) {
+                    throw new Error("Invalid XML file format.");
+                }
+
+                const rows = [];
+                let maxDepth = 0;
+
+                function traverse(node, depth) {
+                    if (node.nodeType === 1) {
+                        if (depth > maxDepth) maxDepth = depth;
+                        
+                        let row = new Array(depth + 1).fill("");
+                        
+                        // Use localName to ignore prefixes like v14: or soapenv:
+                        row[depth] = node.localName; 
+                        
+                        rows.push(row);
+
+                        let child = node.firstChild;
+                        while (child) {
+                            traverse(child, depth + 1);
+                            child = child.nextSibling;
+                        }
+                    }
+                }
+
+                traverse(xmlDoc.documentElement, 0);
+
+                // 1. Generate Excel
+                const worksheet = XLSX.utils.aoa_to_sheet(rows);
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, "Clean Structure");
+                XLSX.writeFile(workbook, "response_structure.xlsx");
+
+                // 2. Display Preview
+                rows.forEach(rowData => {
+                    const tr = document.createElement('tr');
+                    for (let i = 0; i <= maxDepth; i++) {
+                        const td = document.createElement('td');
+                        if (rowData[i]) {
+                            td.innerHTML = `<span class="node-text">${rowData[i]}</span>`;
+                        } else {
+                            td.className = "empty-cell";
+                        }
+                        tr.appendChild(td);
+                    }
+                    table.appendChild(tr);
+                });
+
+                status.innerHTML = "<span style='color:green;'>✅ Processed! Prefixes removed and file downloaded.</span>";
+            } catch (err) {
+                status.innerHTML = "<span style='color:red;'>Error: " + err.message + "</span>";
+            }
+        };
+
+        reader.readAsText(file);
+    }
+</script>
+
+</body>
+</html>
