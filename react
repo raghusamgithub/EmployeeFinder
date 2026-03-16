@@ -1,221 +1,65 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Response Mapper - Multi-Account Support</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 40px; background-color: #f0f2f5; color: #333; }
-        .container { max-width: 1200px; margin: auto; background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); }
-        h1 { color: #1a73e8; border-bottom: 3px solid #1a73e8; padding-bottom: 10px; margin-bottom: 30px; }
-        .upload-section { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; padding: 25px; background: #f8f9fa; border: 1px dashed #ced4da; border-radius: 8px; }
-        .input-group { display: flex; flex-direction: column; gap: 8px; }
-        label { font-weight: bold; color: #495057; }
-        input[type="file"] { padding: 10px; background: white; border: 1px solid #ddd; border-radius: 4px; }
-        button { background-color: #1a73e8; color: white; border: none; padding: 15px 30px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: 600; width: 100%; transition: 0.2s; }
-        button:hover { background-color: #1557b0; }
-        
-        .account-section { margin-top: 50px; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; background: #fff; }
-        .account-header { color: #1a73e8; border-bottom: 2px solid #1a73e8; padding-bottom: 10px; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
-        
-        h3 { margin-top: 30px; color: #202124; border-left: 5px solid #1a73e8; padding-left: 15px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 30px; background: white; font-size: 14px; }
-        th, td { border: 1px solid #e0e0e0; padding: 10px 12px; text-align: left; }
-        th { background-color: #f1f3f4; color: #5f6368; font-weight: 600; text-transform: uppercase; font-size: 11px; }
-        tr:hover { background-color: #f8f9fa; }
-        
-        .match-yes { color: #1e8e3e; font-weight: bold; }
-        .match-no { color: #d93025; font-weight: bold; background-color: #fce8e6; }
-        .tag { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
-        .tag-missing { background: #feebeb; color: #d93025; border: 1px solid #fad2d2; }
-        .tag-extra { background: #e6f4ea; color: #1e8e3e; border: 1px solid #ceead6; }
-        .logic-hint { font-size: 11px; color: #80868b; display: block; }
-        .grid-split { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <h1>API Response Comparison Tool</h1>
-    <p>Upload SOAP and REST Excel files. The tool detects repeating <strong>AccountDetails</strong> arrays and separates them into distinct result sets.</p>
-
-    <div class="upload-section">
-        <div class="input-group">
-            <label>SOAP XML Response (Excel)</label>
-            <input type="file" id="soapFile" accept=".xlsx, .xls">
-        </div>
-        <div class="input-group">
-            <label>REST JSON Response (Excel)</label>
-            <input type="file" id="restFile" accept=".xlsx, .xls">
-        </div>
-    </div>
-
-    <button onclick="startAnalysis()">Run Multi-Account Analysis</button>
-
-    <div id="results"></div>
-</div>
-
-<script>
-    const SPECIAL_VALUES = ['true', 'false', 'enabled'];
-
-    function normalize(name) {
-        if (!name) return "";
-        return name.toLowerCase()
-            .replace(/indicator/g, "ind")
-            .replace(/amount/g, "amt")
-            .replace(/[^a-z0-9]/g, "");
-    }
-
-    function isSpecial(val) {
-        if (!val) return false;
-        return SPECIAL_VALUES.includes(String(val).trim().toLowerCase());
-    }
-
-    async function parseExcel(file) {
-        return new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const workbook = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
-                const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-                
-                const data = [];
-                let currentObjectIndex = 1;
-                let seenFieldsInCurrentBlock = new Set();
-
-                rows.forEach(row => {
-                    const clean = row.filter(cell => cell !== null && cell !== "");
-                    if (clean.length >= 2) {
-                        let fieldName = String(clean[clean.length - 2]).trim();
-                        let fieldValue = String(clean[clean.length - 1]).trim();
-
-                        // Detection Logic: If we see a field name we already saw in this block, 
-                        // it marks the start of a new account object.
-                        if (seenFieldsInCurrentBlock.has(fieldName)) {
-                            currentObjectIndex++;
-                            seenFieldsInCurrentBlock.clear();
-                        }
-                        seenFieldsInCurrentBlock.add(fieldName);
-
-                        data.push({ 
-                            name: fieldName, 
-                            val: fieldValue,
-                            objIndex: currentObjectIndex 
-                        });
-                    }
-                });
-                resolve(data);
-            };
-            reader.readAsArrayBuffer(file);
-        });
-    }
-
-    async function startAnalysis() {
-        const sFile = document.getElementById('soapFile').files[0];
-        const rFile = document.getElementById('restFile').files[0];
-        if (!sFile || !rFile) return alert("Please upload both files.");
-
-        const soap = await parseExcel(sFile);
-        const rest = await parseExcel(rFile);
-
-        const resultsContainer = document.getElementById('results');
-        resultsContainer.innerHTML = ""; 
-
-        const maxIndex = Math.max(
-            ...soap.map(d => d.objIndex), 
-            ...rest.map(d => d.objIndex)
-        );
-
-        for (let i = 1; i <= maxIndex; i++) {
-            const soapBlock = soap.filter(d => d.objIndex === i);
-            const restBlock = rest.filter(d => d.objIndex === i);
-            
-            if (soapBlock.length > 0 || restBlock.length > 0) {
-                const comparison = compareBlocks(soapBlock, restBlock);
-                renderAccountSection(i, comparison, resultsContainer);
-            }
-        }
-    }
-
-    function compareBlocks(soapBlock, restBlock) {
-        let matched = [];
-        let soapUsed = new Set();
-        let restUsed = new Set();
-
-        // Pass 1: Match by Value
-        soapBlock.forEach((s, sIdx) => {
-            if (isSpecial(s.val)) return;
-            for (let rIdx = 0; rIdx < restBlock.length; rIdx++) {
-                const r = restBlock[rIdx];
-                if (!restUsed.has(rIdx) && !isSpecial(r.val) && s.val === r.val) {
-                    matched.push({ sName: s.name, rName: r.name, sVal: s.val, rVal: r.val, match: "Yes", logic: "Value Match" });
-                    soapUsed.add(sIdx);
-                    restUsed.add(rIdx);
-                    break;
-                }
-            }
-        });
-
-        // Pass 2: Match by Name Similarity
-        soapBlock.forEach((s, sIdx) => {
-            if (soapUsed.has(sIdx)) return;
-            const sNorm = normalize(s.name);
-            for (let rIdx = 0; rIdx < restBlock.length; rIdx++) {
-                const r = restBlock[rIdx];
-                if (!restUsed.has(rIdx) && sNorm === normalize(r.name)) {
-                    const valMatch = s.val.toLowerCase() === r.val.toLowerCase() ? "Yes" : "No";
-                    matched.push({ sName: s.name, rName: r.name, sVal: s.val, rVal: r.val, match: valMatch, logic: "Name Similarity" });
-                    soapUsed.add(sIdx);
-                    restUsed.add(rIdx);
-                    break;
-                }
-            }
-        });
-
-        return { matched, soapBlock, restBlock, soapUsed, restUsed };
-    }
-
-    function renderAccountSection(index, data, container) {
-        const section = document.createElement('div');
-        section.className = "account-section";
-        
-        let matchedRows = data.matched.map(m => `
-            <tr>
-                <td>${m.sName}</td><td>${m.rName}</td>
-                <td>${m.sVal}</td><td>${m.rVal}</td>
-                <td class="match-${m.match.toLowerCase()}">${m.match}</td>
-                <td><span class="logic-hint">${m.logic}</span></td>
-            </tr>
-        `).join('');
-
-        let missingRows = data.soapBlock.filter((_, i) => !data.soapUsed.has(i)).map(s => `
-            <tr><td>${s.name}</td><td>${s.val}</td><td><span class="tag tag-missing">Missing in REST</span></td></tr>
-        `).join('');
-
-        let extraRows = data.restBlock.filter((_, i) => !data.restUsed.has(i)).map(r => `
-            <tr><td>${r.name}</td><td>${r.val}</td><td><span class="tag tag-extra">Extra in REST</span></td></tr>
-        `).join('');
-
-        section.innerHTML = `
-            <div class="account-header">Account / Object Set #${index}</div>
-            
-            <h3>1. Matched Fields</h3>
-            ${matchedRows ? `<table><tr><th>SOAP Field</th><th>REST Field</th><th>SOAP Value</th><th>REST Value</th><th>Match</th><th>Logic</th></tr>${matchedRows}</table>` : '<p>No matches found in this set.</p>'}
-
-            <div class="grid-split">
-                <div>
-                    <h3>2. Only in SOAP</h3>
-                    ${missingRows ? `<table><tr><th>Field</th><th>Value</th><th>Status</th></tr>${missingRows}</table>` : '<p>No unique SOAP fields.</p>'}
-                </div>
-                <div>
-                    <h3>3. Only in REST</h3>
-                    ${extraRows ? `<table><tr><th>Field</th><th>Value</th><th>Status</th></tr>${extraRows}</table>` : '<p>No extra REST fields.</p>'}
-                </div>
-            </div>
-        `;
-        container.appendChild(section);
-    }
-</script>
-</body>
-</html>
+{
+  "customerRelationshipsAccountsDigitalAccesses": {
+    "customerRelationshipsAccountsDigitalAccessId": "CRAD-7309842",
+    "customerId": "7309842",
+    "skipPCLIndicator": true,
+    "accountDetails": [
+      {
+        "accountId": "20693907",
+        "accountName": "Community Business Checking",
+        "accountNickName": "Community Business Checking",
+        "productType": "DDA",
+        "subProductType": "WK",
+        "bankAccount": {
+          "accountNumber": "01020222540",
+          "routingNumber": "041215032"
+        },
+        "bobEligibleIndicator": true,
+        "personalBusinessType": "BUS",
+        "balances": {
+          "availableBalanceAmount": "11581.51",
+          "openingBalanceAmount": "26.51",
+          "currencyCode": "USD"
+        },
+        "digitalAccessStatus": {
+          "digitalAccessStatus": "Enabled"
+        },
+        "billPayAccountStatus": {
+          "billPayAccountStatus": "Enabled",
+          "defaultFundingIndicator": true
+        },
+        "pcBankingStatus": {
+          "defaultFundingIndicator": false
+        },
+        "odOptionsEligibleIndicator": false,
+        "mobileRdcEligibleIndicator": true,
+        "shortNickName": "CK2540",
+        "zelleEligibleIndicator": true
+      },
+      {
+        "accountId": "85896087",
+        "accountName": "Huntington Business Checking 100",
+        "accountNickName": "Huntington Business Checking 100",
+        "productType": "DDA",
+        "subProductType": "PH",
+        "bankAccount": {
+          "accountNumber": "01020343322",
+          "routingNumber": "041215032"
+        },
+        "bobEligibleIndicator": true,
+        "personalBusinessType": "BUS",
+        "balances": {
+          "availableBalanceAmount": "86.27",
+          "openingBalanceAmount": "86.27",
+          "currencyCode": "USD"
+        },
+        "digitalAccessStatus": {
+          "digitalAccessStatus": "Enabled"
+        },
+        "mobileRdcEligibleIndicator": true,
+        "shortNickName": "CK3322",
+        "zelleEligibleIndicator": true
+      }
+    ]
+  }
+}
