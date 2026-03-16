@@ -1,65 +1,237 @@
-{
-  "customerRelationshipsAccountsDigitalAccesses": {
-    "customerRelationshipsAccountsDigitalAccessId": "CRAD-7309842",
-    "customerId": "7309842",
-    "skipPCLIndicator": true,
-    "accountDetails": [
-      {
-        "accountId": "20693907",
-        "accountName": "Community Business Checking",
-        "accountNickName": "Community Business Checking",
-        "productType": "DDA",
-        "subProductType": "WK",
-        "bankAccount": {
-          "accountNumber": "01020222540",
-          "routingNumber": "041215032"
-        },
-        "bobEligibleIndicator": true,
-        "personalBusinessType": "BUS",
-        "balances": {
-          "availableBalanceAmount": "11581.51",
-          "openingBalanceAmount": "26.51",
-          "currencyCode": "USD"
-        },
-        "digitalAccessStatus": {
-          "digitalAccessStatus": "Enabled"
-        },
-        "billPayAccountStatus": {
-          "billPayAccountStatus": "Enabled",
-          "defaultFundingIndicator": true
-        },
-        "pcBankingStatus": {
-          "defaultFundingIndicator": false
-        },
-        "odOptionsEligibleIndicator": false,
-        "mobileRdcEligibleIndicator": true,
-        "shortNickName": "CK2540",
-        "zelleEligibleIndicator": true
-      },
-      {
-        "accountId": "85896087",
-        "accountName": "Huntington Business Checking 100",
-        "accountNickName": "Huntington Business Checking 100",
-        "productType": "DDA",
-        "subProductType": "PH",
-        "bankAccount": {
-          "accountNumber": "01020343322",
-          "routingNumber": "041215032"
-        },
-        "bobEligibleIndicator": true,
-        "personalBusinessType": "BUS",
-        "balances": {
-          "availableBalanceAmount": "86.27",
-          "openingBalanceAmount": "86.27",
-          "currencyCode": "USD"
-        },
-        "digitalAccessStatus": {
-          "digitalAccessStatus": "Enabled"
-        },
-        "mobileRdcEligibleIndicator": true,
-        "shortNickName": "CK3322",
-        "zelleEligibleIndicator": true
-      }
-    ]
-  }
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Mapper - Logic Refined</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 40px; background-color: #f0f2f5; color: #333; }
+        .container { max-width: 1400px; margin: auto; background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); }
+        h1 { color: #1a73e8; border-bottom: 3px solid #1a73e8; padding-bottom: 10px; margin-bottom: 30px; }
+        .input-section { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
+        .input-group { display: flex; flex-direction: column; gap: 10px; }
+        textarea { height: 280px; padding: 15px; border: 1px solid #ced4da; border-radius: 8px; font-family: 'Consolas', monospace; font-size: 12px; background: #fafafa; }
+        button { background-color: #1a73e8; color: white; border: none; padding: 18px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: 600; width: 100%; transition: 0.3s; }
+        button:hover { background-color: #1557b0; }
+        .account-section { margin-top: 40px; padding: 25px; border: 1px solid #e0e0e0; border-radius: 8px; background: #fff; border-left: 8px solid #1a73e8; }
+        .account-header { font-size: 20px; font-weight: bold; color: #1a73e8; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #e0e0e0; padding: 12px; text-align: left; font-size: 13px; }
+        th { background-color: #f8f9fa; color: #5f6368; font-weight: 600; text-transform: uppercase; font-size: 11px; }
+        .match-yes { color: #1e8e3e; font-weight: 700; background: #e6f4ea; padding: 4px 8px; border-radius: 4px; }
+        .match-no { color: #d93025; font-weight: 700; background: #fce8e6; padding: 4px 8px; border-radius: 4px; }
+        .tag { padding: 3px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; }
+        .tag-missing { background: #feebeb; color: #d93025; }
+        .tag-extra { background: #e6f4ea; color: #1e8e3e; }
+        .grid-split { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+        .field-label { font-family: monospace; font-weight: 600; color: #444; }
+        .logic-hint { font-size: 10px; color: #888; font-style: italic; display: block; margin-top: 4px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>API Response Comparison Tool</h1>
+    <p>Paste <strong>SOAP (XML)</strong> and <strong>REST (JSON)</strong>. 
+       Note: <i>true/false/enabled</i> are matched by <strong>Field Name</strong> only to avoid false positives.</p>
+
+    <div class="input-section">
+        <div class="input-group">
+            <label><strong>SOAP Response</strong></label>
+            <textarea id="soapInput" placeholder="Paste SOAP XML here..."></textarea>
+        </div>
+        <div class="input-group">
+            <label><strong>REST Response</strong></label>
+            <textarea id="restInput" placeholder='Paste REST JSON here...'></textarea>
+        </div>
+    </div>
+
+    <button onclick="startAnalysis()">Run Refined Analysis</button>
+    <div id="results"></div>
+</div>
+
+<script>
+    // Configuration for "Status" style values
+    const STATUS_VALUES = ['true', 'false', 'enabled', 'disabled', 'y', 'n'];
+
+    function cleanFieldName(name) {
+        if (!name) return "";
+        return name.split(':').pop().trim();
+    }
+
+    function normalize(name) {
+        let clean = cleanFieldName(name).toLowerCase();
+        return clean
+            .replace(/amount/g, "amt")
+            .replace(/indicator/g, "ind")
+            .replace(/[^a-z0-9]/g, "");
+    }
+
+    function isStatusValue(val) {
+        if (!val) return false;
+        return STATUS_VALUES.includes(val.toLowerCase().trim());
+    }
+
+    function flattenJSON(obj, res = [], index = 1) {
+        for (let key in obj) {
+            if (Array.isArray(obj[key])) {
+                obj[key].forEach((item, idx) => flattenJSON(item, res, idx + 1));
+            } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+                flattenJSON(obj[key], res, index);
+            } else {
+                res.push({ name: key, val: String(obj[key]), objIndex: index });
+            }
+        }
+        return res;
+    }
+
+    function flattenXML(xmlText) {
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+        const res = [];
+        let objectCounters = {}; 
+
+        function traverse(node, index = 1) {
+            if (node.nodeType === 1) { 
+                if (node.children.length === 0 && node.textContent.trim() !== "") {
+                    res.push({ name: node.tagName, val: node.textContent.trim(), objIndex: index });
+                } else {
+                    let childTags = Array.from(node.children).map(c => c.tagName);
+                    let counts = {};
+                    childTags.forEach(t => counts[t] = (counts[t] || 0) + 1);
+
+                    Array.from(node.children).forEach(child => {
+                        if (counts[child.tagName] > 1) {
+                            objectCounters[child.tagName] = (objectCounters[child.tagName] || 0) + 1;
+                            traverse(child, objectCounters[child.tagName]);
+                        } else {
+                            traverse(child, index);
+                        }
+                    });
+                }
+            }
+        }
+        traverse(xmlDoc.documentElement);
+        return res;
+    }
+
+    async function startAnalysis() {
+        const soapRaw = document.getElementById('soapInput').value.trim();
+        const restRaw = document.getElementById('restInput').value.trim();
+        const resultsContainer = document.getElementById('results');
+
+        if (!soapRaw || !restRaw) return alert("Please fill both input fields.");
+
+        let soapData = [], restData = [];
+        try {
+            soapData = flattenXML(soapRaw);
+            restData = flattenJSON(JSON.parse(restRaw));
+        } catch (e) {
+            return alert("Format Error: SOAP must be XML, REST must be JSON.");
+        }
+
+        resultsContainer.innerHTML = "";
+        const maxIdx = Math.max(...soapData.map(d => d.objIndex), ...restData.map(d => d.objIndex));
+
+        for (let i = 1; i <= maxIdx; i++) {
+            const sBlock = soapData.filter(d => d.objIndex === i);
+            const rBlock = restData.filter(d => d.objIndex === i);
+            
+            if (sBlock.length || rBlock.length) {
+                const comparison = compareBlocks(sBlock, rBlock);
+                renderSection(i, comparison, resultsContainer);
+            }
+        }
+    }
+
+    function compareBlocks(sBlock, rBlock) {
+        let matched = [], sUsed = new Set(), rUsed = new Set();
+
+        // Pass 1: Unique Value Match (Skip for true/false/enabled)
+        sBlock.forEach((s, si) => {
+            if (isStatusValue(s.val)) return; // Don't match statuses by value alone
+            
+            rBlock.forEach((r, ri) => {
+                if (!rUsed.has(ri) && !isStatusValue(r.val) && s.val === r.val) {
+                    matched.push({ 
+                        sName: cleanFieldName(s.name), 
+                        rName: r.name, 
+                        sVal: s.val, 
+                        rVal: r.val, 
+                        match: "Yes", 
+                        type: "Unique Value Match" 
+                    });
+                    sUsed.add(si); rUsed.add(ri);
+                }
+            });
+        });
+
+        // Pass 2: Field Name Match (Handles Aliasing + Status values)
+        sBlock.forEach((s, si) => {
+            if (sUsed.has(si)) return;
+            const sNorm = normalize(s.name);
+            
+            rBlock.forEach((r, ri) => {
+                if (!rUsed.has(ri) && sNorm === normalize(r.name)) {
+                    const isMatch = s.val.toLowerCase() === r.val.toLowerCase() ? "Yes" : "No";
+                    matched.push({ 
+                        sName: cleanFieldName(s.name), 
+                        rName: r.name, 
+                        sVal: s.val, 
+                        rVal: r.val, 
+                        match: isMatch, 
+                        type: "Field Name Match" 
+                    });
+                    sUsed.add(si); rUsed.add(ri);
+                }
+            });
+        });
+
+        return { matched, sBlock, rBlock, sUsed, rUsed };
+    }
+
+    function renderSection(idx, data, container) {
+        const div = document.createElement('div');
+        div.className = "account-section";
+        div.innerHTML = `
+            <div class="account-header">Account Details Set #${idx}</div>
+            <table>
+                <tr><th>SOAP Field</th><th>REST Field</th><th>SOAP Value</th><th>REST Value</th><th>Result</th></tr>
+                ${data.matched.map(m => `
+                    <tr>
+                        <td class="field-label">${m.sName}</td>
+                        <td class="field-label">${m.rName}</td>
+                        <td>${m.sVal}</td>
+                        <td>${m.rVal}</td>
+                        <td>
+                            <span class="match-${m.match.toLowerCase()}">${m.match}</span>
+                            <span class="logic-hint">${m.type}</span>
+                        </td>
+                    </tr>
+                `).join('')}
+            </table>
+            <div class="grid-split">
+                <div>
+                    <strong>Missing in REST:</strong><br>
+                    ${data.sBlock.filter((_, i) => !data.sUsed.has(i)).map(x => `
+                        <div style="margin-top:8px; font-size:12px;">
+                            <span class="tag tag-missing">Missing</span> 
+                            <span class="field-label">${cleanFieldName(x.name)}</span> (${x.val})
+                        </div>
+                    `).join('') || '<p style="color:#999; font-size:12px;">None</p>'}
+                </div>
+                <div>
+                    <strong>Extra in REST:</strong><br>
+                    ${data.rBlock.filter((_, i) => !data.rUsed.has(i)).map(x => `
+                        <div style="margin-top:8px; font-size:12px;">
+                            <span class="tag tag-extra">Extra</span> 
+                            <span class="field-label">${x.name}</span> (${x.val})
+                        </div>
+                    `).join('') || '<p style="color:#999; font-size:12px;">None</p>'}
+                </div>
+            </div>`;
+        container.appendChild(div);
+    }
+</script>
+</body>
+</html>
