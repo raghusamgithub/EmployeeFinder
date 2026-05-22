@@ -1,19 +1,8 @@
-Here’s a cleaner version for your Jira update or status note:
+S. No.        Employee Name        Squad Name        Co-pilot Setup done (Yes/No)        Usage Date        Usage Details        Traditional Approach Task Duration (Minutes)        Github Copilot Approach Task Duration (Minutes)        Release        Moved to Production (Yes/No)        Phase GitHub Copilot is used        Remarks
 
-*Professional / Jira Comment*  
-I identified a few gaps in the Lock/Unlock REST and SOAP implementation and informed Ila.  
+1        Raghu N        Regions Team        Yes        Last 2 Months        Used GitHub Copilot to resolve build issues, identify problems in existing code, support UI development, backend feature analysis, and SOAP to REST migration activities.        240        120        Q2/Q3        No        Development, Debugging, Code Analysis, API Migration        GitHub Copilot improved debugging efficiency, accelerated development, and helped analyze existing backend dependencies for REST migration support.
 
-Today he made the necessary code changes and raised a PR. I’m currently reviewing it and testing locally. I’ll help with any additional changes if needed.  
 
-*Current status:*  
-- SOAP flow: Working as expected  
-- REST API: Not supported in INT environment yet  
+S. No.        Employee Name        Squad Name        Co-pilot Setup done (Yes/No)        Usage Date        Usage Details        Traditional Approach Task Duration (Minutes)        Github Copilot Approach Task Duration (Minutes)        Release        Moved to Production (Yes/No)        Phase GitHub Copilot is used        Remarks
 
-Once the required changes are in, I’ll proceed with QA testing.
-
----
-
-*More concise standup version*  
-Found a few misses in Lock/Unlock REST and SOAP implementation and looped in Ila. He’s pushed a fix and raised a PR — I’m reviewing and testing it locally now. SOAP works fine; REST isn’t working in INT yet. Will test in QA once changes are deployed.
-
-Want me to make it sound more like you’re taking ownership or more like a handoff to QA?
+1        Raghu N        Regions Team        Yes        Last 2 Months        Used GitHub Copilot to resolve build issues, identify problems in existing code, support UI development, backend feature analysis, and SOAP to REST migration activities.        240        120        Q2/Q3        No        Development, Debugging, Code Analysis, API Migration        GitHub Copilot improved debugging efficiency, accelerated development, and helped analyze existing backend dependencies for REST migration support.
